@@ -40,7 +40,7 @@ public class AESEncryptActivity extends Activity {
 			//Get bytes from the secret user has entered.
 			byte[] key = SecretKey.getBytes("UTF-8");
 			//Hash the secret key into 256 bit (32 bytes)
-			MessageDigest sha256 = MessageDigest.getInstance("SHA-1");
+			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
 			key = sha256.digest(key);
 			//Generate the AES key from user entered secret
 			SecretKeySpec sKey = new SecretKeySpec(key, "AES"); 
