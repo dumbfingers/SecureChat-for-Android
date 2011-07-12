@@ -1,7 +1,6 @@
 package com.yeyaxi.SecureChat;
 import java.io.IOException;
 import java.security.InvalidKeyException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
@@ -37,36 +36,14 @@ public class AESEncryptActivity extends Activity {
 	
     public class AES implements AESInterface {
 		public String AESEncrypt(String sKey, String PlainMsg)
-				throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+				throws Exception {
 			//Try use some Android based alert dialog to catch this exception.
 			if (sKey == null) {
+				Log.e("SecureChat", "IllegalArgumentException Catched");
 				throw new IllegalArgumentException ("NULL Secret NOT ALLOWED!");
-			}
+			}			
 			/*
-			//Get bytes from the secret user has entered.
-			byte[] key = sKey.getBytes("UTF-8");
-			//Hash the secret key into 256 bit (32 bytes)
-			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-			key = sha256.digest(key);
-			
-			Log.d("SecureChat", key.toString());
-			//Generate the AES key from user entered secret
-			SecretKeySpec keySpec = new SecretKeySpec(key, "AES"); 
-			//Initial Cipher
-			Cipher cipher = Cipher.getInstance("AES");
-			//Launch Encrypt Procedure
-			cipher.init(Cipher.ENCRYPT_MODE, keySpec);
-			byte[] cipherText = PlainMsg.getBytes("UTF-8");
-			cipher.doFinal(cipherText);
-			//Display Base64 Encoded CipherText
-			String cipherTextBase64 = Base64.encodeToString(cipherText, 0);
-			//EncryptedMessage.setText(cipherTextBase64);
-			return cipherTextBase64;
-			*/
-			
-			//Test for New method
-			
-			
+			//Test for New method		
 			//First Initialize KeyGenerator
 			KeyGenerator kgen = KeyGenerator.getInstance("AES");
 			SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
@@ -76,13 +53,17 @@ public class AESEncryptActivity extends Activity {
 			SecretKey secret = kgen.generateKey();
 			//Get secret raw key from user entered
 			byte[] rawKey = secret.getEncoded();
+			*/
+			
+			byte[] rawKey = getRawKey(sKey.getBytes("UTF-8"));
 			//Encrypt start
 			SecretKeySpec keySpec = new SecretKeySpec(rawKey, "AES");
 			Cipher cipher = Cipher.getInstance("AES");
 			cipher.init(Cipher.ENCRYPT_MODE, keySpec);
 			byte[] cipherText = cipher.doFinal(PlainMsg.getBytes("UTF-8"));
-			String cipherTextBase64 = Base64.encodeToString(cipherText, 0);
-			return cipherTextBase64;
+			//String cipherTextBase64 = Base64.encodeToString(cipherText, 0);
+			//return cipherTextBase64;
+			return Base64Encoded(cipherText);			
 		}
 
 		@Override
@@ -92,19 +73,26 @@ public class AESEncryptActivity extends Activity {
 			 * For Implementation,
 			 * @see AESDecryptActivity
 			 */
-			//Get bytes from the secret user has entered
-			//byte[] key = SecretKey.getBytes("UTF-8");
-			//Generate the AES key from user entered secret
-			//SecretKeySpec sKey = new SecretKeySpec(key, "AES");
-			//Initial Cipher
-			//Cipher cipher = Cipher.getInstance("AES");
-			//Launch Decrypt Procedure
-			//cipher.init(Cipher.DECRYPT_MODE, sKey);
-			//byte [] plainText = Base64.decode(EncryptMsg.getBytes(), 0);
-			//cipher.doFinal(plainText);
-			//Display the decrypted text
-			//return new String(plainText);
 			return null;
+		}
+
+		@Override
+		public byte[] getRawKey(byte[] seed) throws Exception {
+			//Initialize the KeyGenerator
+			KeyGenerator kgen = KeyGenerator.getInstance("AES");
+			SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+			sr.setSeed(seed);
+			//Init for 256bit AES key
+			kgen.init(256, sr);;
+			SecretKey secret = kgen.generateKey();
+			//Get secret raw key
+			byte[] rawKey = secret.getEncoded();
+			return rawKey;
+		}
+
+		public String Base64Encoded(byte[] toBeEncoded) {
+			String encoded = Base64.encodeToString(toBeEncoded, 0);
+			return encoded;
 		}
     	
     }
@@ -148,7 +136,15 @@ public class AESEncryptActivity extends Activity {
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
+        	}
+        });
+        SendButton.setOnClickListener(new OnClickListener() {
+        	public void onClick(View view) {
+        		//TODO Implement the Send function via SMS.
         	}
         });
     }
