@@ -13,6 +13,7 @@ import javax.crypto.spec.SecretKeySpec;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Base64;
+import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -59,18 +60,23 @@ public class AESEncryptActivity extends Activity {
 		@Override
 		public String AESDecrypt(String SecretKey, String EncryptMsg)
 				throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+			/**
+			 * For Implementation,
+			 * @see AESDecryptActivity
+			 */
 			//Get bytes from the secret user has entered
-			byte[] key = SecretKey.getBytes("UTF-8");
+			//byte[] key = SecretKey.getBytes("UTF-8");
 			//Generate the AES key from user entered secret
-			SecretKeySpec sKey = new SecretKeySpec(key, "AES");
+			//SecretKeySpec sKey = new SecretKeySpec(key, "AES");
 			//Initial Cipher
-			Cipher cipher = Cipher.getInstance("AES");
+			//Cipher cipher = Cipher.getInstance("AES");
 			//Launch Decrypt Procedure
-			cipher.init(Cipher.DECRYPT_MODE, sKey);
-			byte [] plainText = Base64.decode(EncryptMsg.getBytes(), 0);
-			cipher.doFinal(plainText);
+			//cipher.init(Cipher.DECRYPT_MODE, sKey);
+			//byte [] plainText = Base64.decode(EncryptMsg.getBytes(), 0);
+			//cipher.doFinal(plainText);
 			//Display the decrypted text
-			return new String(plainText);
+			//return new String(plainText);
+			return null;
 		}
     	
     }
@@ -80,7 +86,7 @@ public class AESEncryptActivity extends Activity {
     public void onCreate(Bundle icicle) {
         //super.onCreate(savedInstanceState);
     	super.onCreate(icicle);
-        setContentView(R.layout.main);
+        setContentView(R.layout.aesencrypt);
         PlainTextView = (TextView) findViewById(R.id.textView1);
         PlainMessage = (EditText) findViewById(R.id.PlainTxt);
         SecretTextView = (TextView) findViewById(R.id.textView2);
@@ -118,36 +124,12 @@ public class AESEncryptActivity extends Activity {
         	}
         });
     }
-    
-    /*
-    private OnClickListener EncryptListener = new OnClickListener() {
-
-		@Override
-		public void onClick(View v) {
-			AES aes = new AES();
-				try {
-					EncryptedMessage.setText(aes.AESEnrypt(SecretText.toString(), PlainMessage.toString()));
-				} catch (InvalidKeyException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NoSuchAlgorithmException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NoSuchPaddingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalBlockSizeException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (BadPaddingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		}
-		
-    };
-    */
+    public boolean onCreatOptionsMenu (Menu menu) {
+		popMenu(menu);
+    	return (super.onCreateOptionsMenu(menu));
+    }
+	private void popMenu(Menu menu) {
+		menu.add(Menu.NONE, 0, Menu.NONE, "Home");
+		menu.add(Menu.NONE, 0, Menu.NONE, "Decrypt");
+	}
 }
