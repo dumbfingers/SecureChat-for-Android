@@ -94,7 +94,8 @@ public class AESEncryptActivity extends Activity {
         	public void onClick(View view) {
         		AES aes = new AES();
         		try {
-					EncryptedMessage.setText(aes.AESEncrypt(SecretText.toString(), PlainMessage.toString()));
+					String plainTxt = aes.AESEncrypt(SecretText.toString(), PlainMessage.toString());
+        			EncryptedMessage.setText(plainTxt);
 				} catch (InvalidKeyException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
