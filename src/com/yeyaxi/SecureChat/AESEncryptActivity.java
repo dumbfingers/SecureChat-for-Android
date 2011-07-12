@@ -3,16 +3,20 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.SecretKey;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,28 +36,52 @@ public class AESEncryptActivity extends Activity {
 	public Button SendButton;
 	
     public class AES implements AESInterface {
-		public String AESEncrypt(String SecretKey, String PlainMsg)
+		public String AESEncrypt(String sKey, String PlainMsg)
 				throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
 			//Try use some Android based alert dialog to catch this exception.
-			if (SecretKey == null) {
+			if (sKey == null) {
 				throw new IllegalArgumentException ("NULL Secret NOT ALLOWED!");
 			}
+			/*
 			//Get bytes from the secret user has entered.
-			byte[] key = SecretKey.getBytes("UTF-8");
+			byte[] key = sKey.getBytes("UTF-8");
 			//Hash the secret key into 256 bit (32 bytes)
 			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
 			key = sha256.digest(key);
+			
+			Log.d("SecureChat", key.toString());
 			//Generate the AES key from user entered secret
-			SecretKeySpec sKey = new SecretKeySpec(key, "AES"); 
+			SecretKeySpec keySpec = new SecretKeySpec(key, "AES"); 
 			//Initial Cipher
 			Cipher cipher = Cipher.getInstance("AES");
 			//Launch Encrypt Procedure
-			cipher.init(Cipher.ENCRYPT_MODE, sKey);
-			byte[] cipherText = PlainMsg.getBytes();
+			cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+			byte[] cipherText = PlainMsg.getBytes("UTF-8");
 			cipher.doFinal(cipherText);
 			//Display Base64 Encoded CipherText
 			String cipherTextBase64 = Base64.encodeToString(cipherText, 0);
 			//EncryptedMessage.setText(cipherTextBase64);
+			return cipherTextBase64;
+			*/
+			
+			//Test for New method
+			
+			
+			//First Initialize KeyGenerator
+			KeyGenerator kgen = KeyGenerator.getInstance("AES");
+			SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+			//sKey is the user entered secret key
+			sr.setSeed(sKey.getBytes("UTF-8"));
+			kgen.init(256, sr);
+			SecretKey secret = kgen.generateKey();
+			//Get secret raw key from user entered
+			byte[] rawKey = secret.getEncoded();
+			//Encrypt start
+			SecretKeySpec keySpec = new SecretKeySpec(rawKey, "AES");
+			Cipher cipher = Cipher.getInstance("AES");
+			cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+			byte[] cipherText = cipher.doFinal(PlainMsg.getBytes("UTF-8"));
+			String cipherTextBase64 = Base64.encodeToString(cipherText, 0);
 			return cipherTextBase64;
 		}
 
@@ -100,7 +128,7 @@ public class AESEncryptActivity extends Activity {
         	public void onClick(View view) {
         		AES aes = new AES();
         		try {
-					String plainTxt = aes.AESEncrypt(SecretText.toString(), PlainMessage.toString());
+					String plainTxt = aes.AESEncrypt(SecretText.getText().toString(), PlainMessage.getText().toString());
         			EncryptedMessage.setText(plainTxt);
 				} catch (InvalidKeyException e) {
 					// TODO Auto-generated catch block

@@ -15,7 +15,7 @@ public interface AESInterface {
 	 * @return CypherText with Base64 Encoded
 	 * @throws Exception
 	 */
-	String AESEncrypt(String SecretKey, String PlainMsg) throws Exception;
+	String AESEncrypt(String sKey, String PlainMsg) throws Exception;
 	/**
 	 * 
 	 * @param SecretKey	-	The SecretKey for validating user
@@ -23,5 +23,5 @@ public interface AESInterface {
 	 * @return Decrypted PlainText
 	 * @throws Exception
 	 */
-	String AESDecrypt(String SecretKey, String EncryptMsg) throws Exception;
+	String AESDecrypt(String sKey, String EncryptMsg) throws Exception;
 }
