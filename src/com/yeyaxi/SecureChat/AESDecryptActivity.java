@@ -8,17 +8,21 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.telephony.SmsMessage;
 import android.util.Base64;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class AESDecryptActivity extends Activity{
 	
-	private EditText CipherText;
+	public EditText CipherText;
 	private EditText SecretText;
 	private TextView PlainMessage;
 	private Button Decrypt;
@@ -39,17 +43,15 @@ public class AESDecryptActivity extends Activity{
 					String cipherText = aes.AESDecrypt(SecretText.getText().toString(), CipherText.getText().toString());
 					PlainMessage.setText(cipherText);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
 			}
 		});
 	}
+
 	public class AES implements AESInterface {
 
-		//TODO Add Buttons, EditText, etc
-		//TODO Finish aesdecrypt.xml
 		
 		@Override
 		public String AESEncrypt(String sKey, String PlainMsg)
@@ -63,26 +65,14 @@ public class AESDecryptActivity extends Activity{
 
 		@Override
 		public String AESDecrypt(String sKey, String EncryptMsg)
-				throws Exception {
-			/*
-			//Get bytes from the secret user has entered
-			byte[] key = sKey.getBytes("UTF-8");
-			//Generate the AES key from user entered secret
-			SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
-			//Initial Cipher
-			Cipher cipher = Cipher.getInstance("AES");
-			//Launch Decrypt Procedure
-			cipher.init(Cipher.DECRYPT_MODE, keySpec);
-			byte [] plainText = Base64.decode(EncryptMsg.getBytes(), 0);
-			cipher.doFinal(plainText);
-			//Display the decrypted text
-			return new String(plainText);
-			*/
-			byte[] rawKey = getRawKey(sKey.getBytes("UTF-8"));
+				throws Exception {			
+			//byte[] rawKey = getRawKey(sKey.getBytes("UTF-8"));
+			byte[] rawKey = getRawKey(sKey.getBytes());
 			SecretKeySpec keySpec = new SecretKeySpec(rawKey, "AES");
 			Cipher cipher = Cipher.getInstance("AES");
 			cipher.init(Cipher.DECRYPT_MODE, keySpec);
-			byte[] plainText = Base64Decoded(EncryptMsg.getBytes());
+			//byte[] plainText = Base64Decoded(EncryptMsg.getBytes("UTF-8"));
+			byte[] plainText = Base64Decoded(EncryptMsg);			
 			cipher.doFinal(plainText);
 			return plainText.toString();
 		}
@@ -105,11 +95,37 @@ public class AESDecryptActivity extends Activity{
  * @param toBeDecoded
  * @return
  */
-		public byte[] Base64Decoded(byte[] toBeDecoded) {
+		public byte[] Base64Decoded(String toBeDecoded) {
 			byte[] decoded = Base64.decode(toBeDecoded, 0);
 			return decoded;
+		}
+		
+		public void onReceive(Bundle bundle, Intent intent) {
+			bundle = intent.getExtras();
+			SmsMessage[] msgs = null;
+			String str = "";
+			if (bundle != null)
+			{
+				//Retrieve the SMS message received
+				Object[] pdus = (Object[]) bundle.get("pdus");
+				msgs = new SmsMessage[pdus.length];
+				for (int i = 0; i < msgs.length; i++) {
+					msgs[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
+					str += "SMS from" + msgs[i].getOriginatingAddress();
+					str += ":";
+					str += msgs[i].getMessageBody().toString();
+					str += "\n";
+				}
+				//TODO Display the received message directly into the decryptActivity
+				//AESDecryptActivity a = new AESDecryptActivity();
+				//a.CipherText.append(str);
+				//Toast.makeText(bundle, str, Toast.LENGTH_SHORT).show();
+				CipherText.setText(str);
+			}
+			
 		}
 		
 	}
 
 }
+

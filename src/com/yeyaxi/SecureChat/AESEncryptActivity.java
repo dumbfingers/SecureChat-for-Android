@@ -13,7 +13,10 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.crypto.SecretKey;
 
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
@@ -25,15 +28,68 @@ import android.widget.TextView;
 
 public class AESEncryptActivity extends Activity {
 
-	private TextView PlainTextView;
+	//private TextView PlainTextView;
 	public EditText PlainMessage;
-	private TextView SecretTextView;
+	//private TextView SecretTextView;
 	public EditText SecretText;
 	public Button EncryptButton;
-	private TextView EncryptTextView;
+	//private TextView EncryptTextView;
 	public TextView EncryptedMessage;
 	public Button SendButton;
 	
+	
+    /** Called when the activity is first created. */
+    @Override
+    public void onCreate(Bundle icicle) {
+        //super.onCreate(savedInstanceState);
+    	super.onCreate(icicle);
+        setContentView(R.layout.aesencrypt);
+        //PlainTextView = (TextView) findViewById(R.id.textView1);
+        PlainMessage = (EditText) findViewById(R.id.PlainTxt);
+        //SecretTextView = (TextView) findViewById(R.id.textView2);
+        SecretText = (EditText)	findViewById(R.id.SecretTxt);
+        EncryptButton = (Button) findViewById(R.id.EncryptButton);
+        //EncryptTextView = (TextView) findViewById(R.id.textView3);
+        EncryptedMessage = (TextView) findViewById(R.id.EncryptMsg);
+        SendButton = (Button) findViewById(R.id.SendButton);
+        //Set Encrypt Button's event
+        EncryptButton.setOnClickListener(new OnClickListener() {
+        	public void onClick(View view) {
+        		AES aes = new AES();
+        		try {
+					String plainTxt = aes.AESEncrypt(SecretText.getText().toString(), PlainMessage.getText().toString());
+        			EncryptedMessage.setText(plainTxt);
+				} catch (InvalidKeyException e) {
+					e.printStackTrace();
+				} catch (NoSuchAlgorithmException e) {
+					e.printStackTrace();
+				} catch (NoSuchPaddingException e) {
+					e.printStackTrace();
+				} catch (IllegalBlockSizeException e) {
+					e.printStackTrace();
+				} catch (BadPaddingException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+        	}
+        });
+        SendButton.setOnClickListener(new OnClickListener() {
+        	public void onClick(View view) {
+        		//TODO Implement the Send function via SMS.
+        		sendSMS("07593068512",EncryptedMessage.getText().toString());
+        	}
+        });
+    }
+    
+    private void sendSMS (String phoneNum, String message) {
+    	PendingIntent pi = PendingIntent.getActivity(this, 0, new Intent(this, AESEncryptActivity.class), 0);
+    	SmsManager sms = SmsManager.getDefault();
+		sms.sendTextMessage(phoneNum, null, message, pi, null);   	
+    }
+    
     public class AES implements AESInterface {
 		public String AESEncrypt(String sKey, String PlainMsg)
 				throws Exception {
@@ -42,25 +98,15 @@ public class AESEncryptActivity extends Activity {
 				Log.e("SecureChat", "IllegalArgumentException Catched");
 				throw new IllegalArgumentException ("NULL Secret NOT ALLOWED!");
 			}			
-			/*
-			//Test for New method		
-			//First Initialize KeyGenerator
-			KeyGenerator kgen = KeyGenerator.getInstance("AES");
-			SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
-			//sKey is the user entered secret key
-			sr.setSeed(sKey.getBytes("UTF-8"));
-			kgen.init(256, sr);
-			SecretKey secret = kgen.generateKey();
-			//Get secret raw key from user entered
-			byte[] rawKey = secret.getEncoded();
-			*/
 			
-			byte[] rawKey = getRawKey(sKey.getBytes("UTF-8"));
+			//byte[] rawKey = getRawKey(sKey.getBytes("UTF-8"));
+			byte[] rawKey = getRawKey(sKey.getBytes());
 			//Encrypt start
 			SecretKeySpec keySpec = new SecretKeySpec(rawKey, "AES");
 			Cipher cipher = Cipher.getInstance("AES");
 			cipher.init(Cipher.ENCRYPT_MODE, keySpec);
-			byte[] cipherText = cipher.doFinal(PlainMsg.getBytes("UTF-8"));
+			//byte[] cipherText = cipher.doFinal(PlainMsg.getBytes("UTF-8"));
+			byte[] cipherText = cipher.doFinal(PlainMsg.getBytes());
 			//String cipherTextBase64 = Base64.encodeToString(cipherText, 0);
 			//return cipherTextBase64;
 			return Base64Encoded(cipherText);			
@@ -96,58 +142,7 @@ public class AESEncryptActivity extends Activity {
 		}
     	
     }
-	
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle icicle) {
-        //super.onCreate(savedInstanceState);
-    	super.onCreate(icicle);
-        setContentView(R.layout.aesencrypt);
-        PlainTextView = (TextView) findViewById(R.id.textView1);
-        PlainMessage = (EditText) findViewById(R.id.PlainTxt);
-        SecretTextView = (TextView) findViewById(R.id.textView2);
-        SecretText = (EditText)	findViewById(R.id.SecretTxt);
-        EncryptButton = (Button) findViewById(R.id.EncryptButton);
-        EncryptTextView = (TextView) findViewById(R.id.textView3);
-        EncryptedMessage = (TextView) findViewById(R.id.EncryptMsg);
-        SendButton = (Button) findViewById(R.id.SendButton);
-        //Set Encrypt Button's event
-        EncryptButton.setOnClickListener(new OnClickListener() {
-        	public void onClick(View view) {
-        		AES aes = new AES();
-        		try {
-					String plainTxt = aes.AESEncrypt(SecretText.getText().toString(), PlainMessage.getText().toString());
-        			EncryptedMessage.setText(plainTxt);
-				} catch (InvalidKeyException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NoSuchAlgorithmException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NoSuchPaddingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalBlockSizeException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (BadPaddingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-        	}
-        });
-        SendButton.setOnClickListener(new OnClickListener() {
-        	public void onClick(View view) {
-        		//TODO Implement the Send function via SMS.
-        	}
-        });
-    }
+    
     public boolean onCreatOptionsMenu (Menu menu) {
 		popMenu(menu);
     	return (super.onCreateOptionsMenu(menu));
