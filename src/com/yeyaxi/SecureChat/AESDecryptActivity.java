@@ -35,7 +35,9 @@ public class AESDecryptActivity extends Activity{
 		SecretText = (EditText) findViewById(R.id.editText2);
 		PlainMessage = (TextView) findViewById(R.id.textView3);
 		Decrypt = (Button) findViewById(R.id.button1);
-		
+	}
+	public void onStart() {
+		super.onStart();
 		Decrypt.setOnClickListener(new OnClickListener() {
 			public void onClick (View view) {
 				AES aes = new AES();
@@ -47,7 +49,14 @@ public class AESDecryptActivity extends Activity{
 				}
 
 			}
-		});
+		});		
+	}
+	//For receiving SMS (Value passed from SMSReceiver)
+	public void onResume() {
+		super.onResume();
+		Bundle bundleReceiver = getIntent().getExtras();
+		String msg = bundleReceiver.getString("msg");
+		CipherText.setText(msg);
 	}
 
 	public class AES implements AESInterface {
@@ -100,32 +109,10 @@ public class AESDecryptActivity extends Activity{
 			return decoded;
 		}
 		
-		public void onReceive(Bundle bundle, Intent intent) {
-			bundle = intent.getExtras();
-			SmsMessage[] msgs = null;
-			String str = "";
-			if (bundle != null)
-			{
-				//Retrieve the SMS message received
-				Object[] pdus = (Object[]) bundle.get("pdus");
-				msgs = new SmsMessage[pdus.length];
-				for (int i = 0; i < msgs.length; i++) {
-					msgs[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
-					str += "SMS from" + msgs[i].getOriginatingAddress();
-					str += ":";
-					str += msgs[i].getMessageBody().toString();
-					str += "\n";
-				}
-				//TODO Display the received message directly into the decryptActivity
-				//AESDecryptActivity a = new AESDecryptActivity();
-				//a.CipherText.append(str);
-				//Toast.makeText(bundle, str, Toast.LENGTH_SHORT).show();
-				CipherText.setText(str);
-			}
-			
-		}
+
 		
 	}
+	
 
 }
 

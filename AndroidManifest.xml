@@ -16,7 +16,8 @@
             </intent-filter>
         </activity>
         <activity android:name="AESEncryptActivity"></activity>
-        <activity android:name="AESDecryptActivity"></activity>
+        <activity android:name="AESDecryptActivity">
+        </activity>
 
     </application>
 </manifest>

@@ -2,6 +2,7 @@ package com.yeyaxi.SecureChat;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 /**
@@ -13,6 +14,11 @@ import android.view.MenuItem;
  */
 
 public class SecureChatActivity extends Activity {
+	
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
+	}
 
     public boolean onCreateOptionsMenu(Menu menu) {
     	popMenu(menu);
@@ -30,11 +36,14 @@ public class SecureChatActivity extends Activity {
 	private boolean applyMenuChoice(MenuItem item) {
 		switch (item.getItemId()) {
 		case 0:
-			startActivity(new Intent(this, AESEncryptActivity.class));
+			Intent startEncrypt = new Intent(this, AESEncryptActivity.class);
+			startActivity(startEncrypt);
 			return (true);
 		case 1:
 			//TODO Implement Menu options, when selected Decrypt in Menu
-			startActivity(new Intent(this, AESDecryptActivity.class));
+			Intent startDecrypt = new Intent(this, AESDecryptActivity.class);
+			startDecrypt.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(startDecrypt);
 			return (true);
 		}
 		return false;
