@@ -55,7 +55,7 @@ public class AESDecryptActivity extends Activity{
 	public void onResume() {
 		super.onResume();
 		Bundle bundleReceiver = getIntent().getExtras();
-		String msg = bundleReceiver.getString("msg");
+		String msg = bundleReceiver.getString("SMS");
 		CipherText.setText(msg);
 	}
 
