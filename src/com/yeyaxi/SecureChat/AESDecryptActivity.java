@@ -75,15 +75,15 @@ public class AESDecryptActivity extends Activity{
 		@Override
 		public String AESDecrypt(String sKey, String EncryptMsg)
 				throws Exception {			
-			//byte[] rawKey = getRawKey(sKey.getBytes("UTF-8"));
-			byte[] rawKey = getRawKey(sKey.getBytes());
+			byte[] rawKey = getRawKey(sKey.getBytes("UTF-8"));
+			//byte[] rawKey = getRawKey(sKey.getBytes());
 			SecretKeySpec keySpec = new SecretKeySpec(rawKey, "AES");
 			Cipher cipher = Cipher.getInstance("AES");
 			cipher.init(Cipher.DECRYPT_MODE, keySpec);
 			//byte[] plainText = Base64Decoded(EncryptMsg.getBytes("UTF-8"));
 			byte[] plainText = Base64Decoded(EncryptMsg);			
 			cipher.doFinal(plainText);
-			return plainText.toString();
+			return new String(plainText, "UTF-8");
 		}
 
 		@Override
@@ -93,7 +93,7 @@ public class AESDecryptActivity extends Activity{
 			SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
 			sr.setSeed(seed);
 			//Init for 256bit AES key
-			kgen.init(256, sr);;
+			kgen.init(Constants.AES_KEY_SIZE, sr);
 			SecretKey secret = kgen.generateKey();
 			//Get secret raw key
 			byte[] rawKey = secret.getEncoded();

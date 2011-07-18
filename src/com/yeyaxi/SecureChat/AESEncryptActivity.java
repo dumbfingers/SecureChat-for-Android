@@ -79,7 +79,7 @@ public class AESEncryptActivity extends Activity {
         SendButton.setOnClickListener(new OnClickListener() {
         	public void onClick(View view) {
         		//TODO Implement the Send function via SMS.
-        		sendSMS("07593068512",EncryptedMessage.getText().toString());
+        		sendSMS(Constants.SMS_RECIPIENT,EncryptedMessage.getText().toString());
         	}
         });
     }
@@ -99,14 +99,14 @@ public class AESEncryptActivity extends Activity {
 				throw new IllegalArgumentException ("NULL Secret NOT ALLOWED!");
 			}			
 			
-			//byte[] rawKey = getRawKey(sKey.getBytes("UTF-8"));
-			byte[] rawKey = getRawKey(sKey.getBytes());
+			byte[] rawKey = getRawKey(sKey.getBytes("UTF-8"));
+			//byte[] rawKey = getRawKey(sKey.getBytes());
 			//Encrypt start
 			SecretKeySpec keySpec = new SecretKeySpec(rawKey, "AES");
 			Cipher cipher = Cipher.getInstance("AES");
 			cipher.init(Cipher.ENCRYPT_MODE, keySpec);
-			//byte[] cipherText = cipher.doFinal(PlainMsg.getBytes("UTF-8"));
-			byte[] cipherText = cipher.doFinal(PlainMsg.getBytes());
+			byte[] cipherText = cipher.doFinal(PlainMsg.getBytes("UTF-8"));
+			//byte[] cipherText = cipher.doFinal(PlainMsg.getBytes());
 			//String cipherTextBase64 = Base64.encodeToString(cipherText, 0);
 			//return cipherTextBase64;
 			return Base64Encoded(cipherText);			
@@ -129,7 +129,7 @@ public class AESEncryptActivity extends Activity {
 			SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
 			sr.setSeed(seed);
 			//Init for 256bit AES key
-			kgen.init(256, sr);;
+			kgen.init(Constants.AES_KEY_SIZE, sr);;
 			SecretKey secret = kgen.generateKey();
 			//Get secret raw key
 			byte[] rawKey = secret.getEncoded();

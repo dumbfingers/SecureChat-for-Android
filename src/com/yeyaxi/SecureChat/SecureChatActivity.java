@@ -45,7 +45,7 @@ public class SecureChatActivity extends Activity {
 		case 1:
 			//TODO Implement Menu options, when selected Decrypt in Menu
 			Intent startDecrypt = new Intent(this, AESDecryptActivity.class);
-			startDecrypt.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startDecrypt.setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
 			startActivity(startDecrypt);
 			return (true);
 		}
