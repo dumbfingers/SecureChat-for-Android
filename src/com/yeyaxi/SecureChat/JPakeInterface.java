@@ -38,7 +38,7 @@ public interface JPakeInterface {
 	/**
 	 * step1 - JPake Step1
 	 * @param p
-	 * @param x1 For sender, it should be selected from the range of [0, pow(2, (bitLength q))-1], for receiver, it should be selected from the range of [1, pow(2, (bitLength q)) -1
+	 * @param x1 For sender, it should be selected from the range of [0, this BigInteger.substract(BigInteger.ONE)], for receiver, it should be selected from the range of [1, this BigInteger.substract(BigInteger.ONE)]
 	 * @param x2 Random BigInteger
 	 * @param signerId
 	 * @return BigInteger gx, and BigInteger s from String signerId

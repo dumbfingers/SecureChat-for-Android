@@ -3,12 +3,15 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.spec.KeySpec;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.crypto.SecretKey;
 
@@ -55,7 +58,7 @@ public class AESEncryptActivity extends Activity {
         //Set Encrypt Button's event
         EncryptButton.setOnClickListener(new OnClickListener() {
         	public void onClick(View view) {
-        		AES aes = new AES();
+        		Encrypt aes = new Encrypt();
         		try {
 					String plainTxt = aes.AESEncrypt(SecretText.getText().toString(), PlainMessage.getText().toString());
         			EncryptedMessage.setText(plainTxt);
@@ -90,7 +93,8 @@ public class AESEncryptActivity extends Activity {
 		sms.sendTextMessage(phoneNum, null, message, pi, null);   	
     }
     
-    public class AES implements AESInterface {
+    public class Encrypt {
+    	
 		public String AESEncrypt(String sKey, String PlainMsg)
 				throws Exception {
 			//Try use some Android based alert dialog to catch this exception.
@@ -98,32 +102,36 @@ public class AESEncryptActivity extends Activity {
 				Log.e("SecureChat", "IllegalArgumentException Catched");
 				throw new IllegalArgumentException ("NULL Secret NOT ALLOWED!");
 			}			
-			
-			byte[] rawKey = getRawKey(sKey.getBytes("UTF-8"));
-			//byte[] rawKey = getRawKey(sKey.getBytes());
+			//Old Method
+			//byte[] rawKey = getRawKey(sKey.getBytes("UTF-8"));
+			byte[] rawKey = getRawKey(sKey.getBytes());
 			//Encrypt start
 			SecretKeySpec keySpec = new SecretKeySpec(rawKey, "AES");
 			Cipher cipher = Cipher.getInstance("AES");
 			cipher.init(Cipher.ENCRYPT_MODE, keySpec);
-			byte[] cipherText = cipher.doFinal(PlainMsg.getBytes("UTF-8"));
-			//byte[] cipherText = cipher.doFinal(PlainMsg.getBytes());
-			//String cipherTextBase64 = Base64.encodeToString(cipherText, 0);
-			//return cipherTextBase64;
-			return Base64Encoded(cipherText);			
+			//byte[] cipherText = cipher.doFinal(PlainMsg.getBytes("UTF-8"));
+			byte[] cipherText = cipher.doFinal(PlainMsg.getBytes());
+			return Base64.encodeToString(cipherText, 0);
+			
+			/*New Method
+			byte[] salt = getSalt();
+			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBEWITHSHA256AND256BITAES-CBC-BC");
+			KeySpec spec = new PBEKeySpec(sKey.toCharArray(), salt, 1024, 256);	
+			SecretKey tmp = factory.generateSecret(spec);
+			SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
+			//Encryption Process
+			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+			cipher.init(Cipher.ENCRYPT_MODE, secret);
+			byte[] cipherText = cipher.doFinal(PlainMsg.getBytes());
+			//return Base64Encoded(cipherText);
+			//Hex
+			return toHex(cipherText);
+			*/
 		}
 
-		@Override
-		public String AESDecrypt(String SecretKey, String EncryptMsg)
-				throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-			/**
-			 * For Implementation,
-			 * @see AESDecryptActivity
-			 */
-			return null;
-		}
-
-		@Override
 		public byte[] getRawKey(byte[] seed) throws Exception {
+		//private byte[] getSalt() throws NoSuchAlgorithmException {
+			//Mark for old key method
 			//Initialize the KeyGenerator
 			KeyGenerator kgen = KeyGenerator.getInstance("AES");
 			SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
@@ -134,12 +142,45 @@ public class AESEncryptActivity extends Activity {
 			//Get secret raw key
 			byte[] rawKey = secret.getEncoded();
 			return rawKey;
+			
+			/*New key method with some salt
+			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+			byte[] ransalt = new byte[20];
+			random.nextBytes(ransalt);
+			return ransalt;
+			*/
 		}
 
-		public String Base64Encoded(byte[] toBeEncoded) {
-			String encoded = Base64.encodeToString(toBeEncoded, 0);
-			return encoded;
-		}
+		
+		//Hex Mode
+	    public String toHex(String txt) {
+	        return toHex(txt.getBytes());
+	    }
+	    public String fromHex(String hex) {
+	        return new String(toByte(hex));
+	    }
+
+	    public byte[] toByte(String hexString) {
+	        int len = hexString.length()/2;
+	        byte[] result = new byte[len];
+	        for (int i = 0; i < len; i++)
+	            result[i] = Integer.valueOf(hexString.substring(2*i, 2*i+2), 16).byteValue();
+	        return result;
+	    }
+
+	    public String toHex(byte[] buf) {
+	        if (buf == null)
+	            return "";
+	        StringBuffer result = new StringBuffer(2*buf.length);
+	        for (int i = 0; i < buf.length; i++) {
+	            appendHex(result, buf[i]);
+	        }
+	        return result.toString();
+	    }
+	    private final String HEX = "0123456789ABCDEF";
+	    private void appendHex(StringBuffer sb, byte b) {
+	        sb.append(HEX.charAt((b>>4)&0x0f)).append(HEX.charAt(b&0x0f));
+	    }
     	
     }
     
