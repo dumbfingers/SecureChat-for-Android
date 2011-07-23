@@ -3,15 +3,15 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    >
-    <RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent" android:id="@+id/relativeLayout1">
-        <EditText android:id="@+id/SecretTxt" android:layout_alignLeft="@+id/textView2" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:inputType="textPassword" android:layout_width="wrap_content" android:layout_below="@+id/textView2" android:layout_alignRight="@+id/textView2"></EditText>
-        <TextView android:id="@+id/EncryptMsg" android:layout_alignLeft="@+id/textView3" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:layout_width="wrap_content" android:layout_below="@+id/textView3" android:layout_alignRight="@+id/textView3"></TextView>
-        <TextView android:layout_alignParentTop="true" android:id="@+id/textView1" android:layout_height="wrap_content" android:layout_marginTop="41dp" android:layout_alignParentLeft="true" android:text="Enter Messages Here" android:layout_marginLeft="25dp" android:layout_width="wrap_content"></TextView>
-        <TextView android:id="@+id/textView3" android:layout_alignLeft="@+id/SecretTxt" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Your Encrypted Message" android:layout_width="wrap_content" android:layout_below="@+id/EncryptButton"></TextView>
-        <EditText android:layout_alignLeft="@+id/textView1" android:layout_height="wrap_content" android:layout_marginTop="15dp" android:inputType="textMultiLine" android:layout_width="wrap_content" android:layout_below="@+id/textView1" android:layout_alignRight="@+id/textView1" android:id="@+id/PlainTxt"></EditText>
-        <Button android:id="@+id/EncryptButton" android:layout_height="wrap_content" android:text="Encrypt!" android:layout_width="wrap_content" android:layout_below="@+id/SecretTxt" android:layout_centerHorizontal="true" android:layout_marginTop="15dp"></Button>
-        <TextView android:id="@+id/textView2" android:layout_height="wrap_content" android:text="Enter Secret Here" android:layout_width="wrap_content" android:layout_below="@+id/PlainTxt" android:layout_alignLeft="@+id/PlainTxt" android:layout_marginTop="15dp"></TextView>
-        <Button android:id="@+id/SendButton" android:layout_height="wrap_content" android:text="Send" android:layout_width="wrap_content" android:layout_below="@+id/EncryptMsg" android:layout_alignLeft="@+id/EncryptButton" android:layout_marginTop="31dp" android:layout_alignRight="@+id/EncryptButton"></Button>
-    </RelativeLayout>
+    android:weightSum="1">
+    <TextView android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:layout_width="wrap_content" android:id="@+id/textView1" android:text="Enter Message Here:"></TextView>
+    <EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/PlainTxt">
+        <requestFocus></requestFocus>
+    </EditText>
+    <TextView android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:id="@+id/textView1" android:layout_width="wrap_content" android:text="Enter Secret Here:"></TextView>
+    <EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:inputType="textPassword" android:id="@+id/SecretTxt"></EditText>
+    <Button android:layout_gravity="center_horizontal" android:layout_height="wrap_content" android:layout_width="302dp" android:id="@+id/EncryptButton" android:text="Encrypt"></Button>
+    <TextView android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:id="@+id/TextView01" android:layout_width="wrap_content" android:text="Your Encrypted Message:"></TextView>
+    <TextView android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:layout_width="match_parent" android:layout_weight="0.17" android:id="@+id/EncryptMsg"></TextView>
+    <Button android:layout_gravity="center_horizontal" android:layout_height="wrap_content" android:layout_width="302dp" android:id="@+id/SendButton" android:text="Send"></Button>
 </LinearLayout>

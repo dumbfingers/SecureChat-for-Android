@@ -35,10 +35,10 @@ public class AESDecryptActivity extends Activity{
 		super.onCreate(icicle);
 		setContentView(R.layout.aesdecrypt);
 		
-		CipherText = (EditText) findViewById(R.id.editText1);
-		SecretText = (EditText) findViewById(R.id.editText2);
-		PlainMessage = (TextView) findViewById(R.id.textView3);
-		Decrypt = (Button) findViewById(R.id.button1);
+		CipherText = (EditText) findViewById(R.id.CipherTxt);
+		SecretText = (EditText) findViewById(R.id.SecretTxt1);
+		PlainMessage = (TextView) findViewById(R.id.DecryptMsg);
+		Decrypt = (Button) findViewById(R.id.DecryptButton);
 	}
 	public void onStart() {
 		super.onStart();
@@ -68,59 +68,26 @@ public class AESDecryptActivity extends Activity{
 
 	public class Decrypt {
 
-		public String AESDecrypt(String sKey, String EncryptMsg)
+		public String AESDecrypt(String seed, String encryptMsg)
 				throws Exception {			
-			//Old Method
-			//byte[] rawKey = getRawKey(sKey.getBytes("UTF-8"));
-			byte[] rawKey = getRawKey(sKey.getBytes());
-			SecretKeySpec keySpec = new SecretKeySpec(rawKey, "AES");
+			byte[] rawKey = getRawKey(seed.getBytes());
+			//byte[] enc = toByte(encryptMsg);
+			byte[] enc = Base64.decode(encryptMsg, 0);
+			byte[] result = decrypt(rawKey, enc);
+			return new String(result);
+			
+		}
+		private byte[] decrypt(byte[] raw, byte[] encrypted) throws Exception {
+			SecretKeySpec keySpec = new SecretKeySpec(raw, "AES");
 			Cipher cipher = Cipher.getInstance("AES");
 			cipher.init(Cipher.DECRYPT_MODE, keySpec);
-			byte[] cipherTxt = EncryptMsg.getBytes(); 
-			byte[] plainText = Base64.decode(cipherTxt,0);			
-			cipher.doFinal(plainText);
-			return new String(plainText);
+			byte[] decrypted = cipher.doFinal(encrypted);
+			return decrypted;
 			
-			/*New Method
-			byte[] salt = getSalt();
-			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBEWITHSHA256AND256BITAES-CBC-BC");
-			KeySpec spec = new PBEKeySpec(sKey.toCharArray(), salt, 1024, 256);	
-			SecretKey tmp = factory.generateSecret(spec);
-			SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
-			//byte[] bCipherText = Base64Decoded(EncryptMsg);
-			//Hex
-			byte[] bCipherText = toByte(EncryptMsg);
-			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-			cipher.init(Cipher.ENCRYPT_MODE, secret);
-			cipher.doFinal(bCipherText);
-			return new String(bCipherText);
-			*/
 		}
-		
-		/*private byte[] getSalt() throws NoSuchAlgorithmException {
-			//Mark for old key method
-			//Initialize the KeyGenerator
-			KeyGenerator kgen = KeyGenerator.getInstance("AES");
-			SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
-			sr.setSeed(seed);
-			//Init for 256bit AES key
-			kgen.init(Constants.AES_KEY_SIZE, sr);;
-			SecretKey secret = kgen.generateKey();
-			//Get secret raw key
-			byte[] rawKey = secret.getEncoded();
-			return rawKey;
-			
-			
-			/*New key method with some salt
-			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-			byte[] ransalt = new byte[20];
-			random.nextBytes(ransalt);
-			return ransalt;
-			
-		}*/
 
 		public byte[] getRawKey(byte[] seed) throws Exception {
-			//Old Method
+
 			//Initialize the KeyGenerator
 			KeyGenerator kgen = KeyGenerator.getInstance("AES");
 			SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
@@ -129,8 +96,8 @@ public class AESDecryptActivity extends Activity{
 			kgen.init(Constants.AES_KEY_SIZE, sr);
 			SecretKey secret = kgen.generateKey();
 			//Get secret raw key
-			byte[] rawKey = secret.getEncoded();
-			return rawKey;
+			byte[] raw = secret.getEncoded();
+			return raw;
 		}
 		
 		//Hex Mode

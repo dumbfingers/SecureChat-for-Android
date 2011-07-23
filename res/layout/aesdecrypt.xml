@@ -4,16 +4,14 @@
   android:orientation="vertical"
   android:layout_width="match_parent"
   android:layout_height="match_parent" android:weightSum="1">
-    <RelativeLayout android:layout_width="match_parent" android:id="@+id/relativeLayout1" android:layout_height="match_parent">
-        <EditText android:id="@+id/editText1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_below="@+id/textView1" android:layout_alignLeft="@+id/textView1" android:layout_marginTop="14dp" android:layout_alignRight="@+id/textView1"></EditText>
-        <TextView android:layout_width="wrap_content" android:id="@+id/textView2" android:layout_height="wrap_content" android:layout_below="@+id/editText1" android:layout_alignLeft="@+id/editText1" android:layout_marginTop="14dp" android:text="Enter your Secret here："></TextView>
-        <EditText android:id="@+id/editText2" android:layout_width="wrap_content" android:inputType="textPassword" android:layout_height="wrap_content" android:layout_below="@+id/textView2" android:layout_alignLeft="@+id/textView2" android:layout_marginTop="14dp" android:layout_alignRight="@+id/textView2">
-            <requestFocus></requestFocus>
-        </EditText>
-        <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/button1" android:layout_below="@+id/editText2" android:layout_centerHorizontal="true" android:layout_marginTop="22dp" android:text="Decrypt!"></Button>
-        <TextView android:layout_width="wrap_content" android:id="@+id/textView1" android:layout_height="wrap_content" android:layout_alignParentTop="true" android:layout_alignParentLeft="true" android:layout_marginLeft="25dp" android:layout_marginTop="41dp" android:text="Enter Cipher Text here:"></TextView>
-        <TextView android:layout_width="wrap_content" android:id="@+id/textView4" android:layout_height="wrap_content" android:layout_below="@+id/button1" android:layout_alignLeft="@+id/textView3" android:layout_marginTop="14dp" android:text="Decrypted Message:"></TextView>
-        <TextView android:layout_width="wrap_content" android:id="@+id/textView3" android:layout_height="wrap_content" android:layout_below="@+id/textView4" android:layout_alignLeft="@+id/editText2" android:layout_marginTop="15dp" android:layout_alignRight="@+id/button1"></TextView>
-    </RelativeLayout>
+    <TextView android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:id="@+id/textView1" android:layout_width="wrap_content" android:text="Enter Encrypted Message Here:"></TextView>
+    <EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/CipherTxt">
+        <requestFocus></requestFocus>
+    </EditText>
+    <TextView android:layout_height="wrap_content" android:text="Enter Secret Here:" android:textAppearance="?android:attr/textAppearanceLarge" android:id="@+id/textView1" android:layout_width="wrap_content"></TextView>
+    <EditText android:inputType="textPassword" android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/SecretTxt1"></EditText>
+    <Button android:layout_gravity="center_horizontal" android:layout_height="wrap_content" android:layout_width="302dp" android:text="Decrypt" android:id="@+id/DecryptButton"></Button>
+    <TextView android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:id="@+id/TextView01" android:layout_width="wrap_content" android:text="Your Decrypted Message:"></TextView>
+    <TextView android:layout_weight="0.17" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:layout_width="match_parent" android:id="@+id/DecryptMsg"></TextView>
     
 </LinearLayout>

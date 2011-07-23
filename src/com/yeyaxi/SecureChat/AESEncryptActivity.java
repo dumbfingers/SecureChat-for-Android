@@ -62,6 +62,7 @@ public class AESEncryptActivity extends Activity {
         		try {
 					String plainTxt = aes.AESEncrypt(SecretText.getText().toString(), PlainMessage.getText().toString());
         			EncryptedMessage.setText(plainTxt);
+        			//EncryptedMessage.setTextIsSelectable(true); It'll be worked since API Lv.11
 				} catch (InvalidKeyException e) {
 					e.printStackTrace();
 				} catch (NoSuchAlgorithmException e) {
@@ -93,46 +94,39 @@ public class AESEncryptActivity extends Activity {
 		sms.sendTextMessage(phoneNum, null, message, pi, null);   	
     }
     
+	private void popMenu(Menu menu) {
+		menu.add(Menu.NONE, 0, Menu.NONE, "Home");
+		menu.add(Menu.NONE, 0, Menu.NONE, "Decrypt");
+	}
+    
     public class Encrypt {
     	
-		public String AESEncrypt(String sKey, String PlainMsg)
+		public String AESEncrypt(String seed, String plainMsg)
 				throws Exception {
+			/*
 			//Try use some Android based alert dialog to catch this exception.
-			if (sKey == null) {
+			if (seed == null) {
 				Log.e("SecureChat", "IllegalArgumentException Catched");
 				throw new IllegalArgumentException ("NULL Secret NOT ALLOWED!");
-			}			
-			//Old Method
-			//byte[] rawKey = getRawKey(sKey.getBytes("UTF-8"));
-			byte[] rawKey = getRawKey(sKey.getBytes());
-			//Encrypt start
-			SecretKeySpec keySpec = new SecretKeySpec(rawKey, "AES");
-			Cipher cipher = Cipher.getInstance("AES");
-			cipher.init(Cipher.ENCRYPT_MODE, keySpec);
-			//byte[] cipherText = cipher.doFinal(PlainMsg.getBytes("UTF-8"));
-			byte[] cipherText = cipher.doFinal(PlainMsg.getBytes());
-			return Base64.encodeToString(cipherText, 0);
-			
-			/*New Method
-			byte[] salt = getSalt();
-			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBEWITHSHA256AND256BITAES-CBC-BC");
-			KeySpec spec = new PBEKeySpec(sKey.toCharArray(), salt, 1024, 256);	
-			SecretKey tmp = factory.generateSecret(spec);
-			SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
-			//Encryption Process
-			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-			cipher.init(Cipher.ENCRYPT_MODE, secret);
-			byte[] cipherText = cipher.doFinal(PlainMsg.getBytes());
-			//return Base64Encoded(cipherText);
-			//Hex
-			return toHex(cipherText);
+			}
 			*/
+			
+			//Encrypt start
+			byte[] rawKey = getRawKey(seed.getBytes());
+			byte[] result = encrypt(rawKey, plainMsg.getBytes());
+			//return toHex(result);
+			return Base64.encodeToString(result, 0);
+		}
+		private byte[] encrypt(byte[] raw, byte[] plain) throws Exception {
+			SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
+			Cipher cipher = Cipher.getInstance("AES");
+			cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
+			byte[] encrypted = cipher.doFinal(plain);
+			return encrypted;
 		}
 
 		public byte[] getRawKey(byte[] seed) throws Exception {
-		//private byte[] getSalt() throws NoSuchAlgorithmException {
-			//Mark for old key method
-			//Initialize the KeyGenerator
+			
 			KeyGenerator kgen = KeyGenerator.getInstance("AES");
 			SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
 			sr.setSeed(seed);
@@ -140,15 +134,9 @@ public class AESEncryptActivity extends Activity {
 			kgen.init(Constants.AES_KEY_SIZE, sr);;
 			SecretKey secret = kgen.generateKey();
 			//Get secret raw key
-			byte[] rawKey = secret.getEncoded();
-			return rawKey;
+			byte[] raw = secret.getEncoded();
+			return raw;
 			
-			/*New key method with some salt
-			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-			byte[] ransalt = new byte[20];
-			random.nextBytes(ransalt);
-			return ransalt;
-			*/
 		}
 
 		
@@ -188,8 +176,5 @@ public class AESEncryptActivity extends Activity {
 		popMenu(menu);
     	return (super.onCreateOptionsMenu(menu));
     }
-	private void popMenu(Menu menu) {
-		menu.add(Menu.NONE, 0, Menu.NONE, "Home");
-		menu.add(Menu.NONE, 0, Menu.NONE, "Decrypt");
-	}
+
 }
