@@ -87,7 +87,11 @@ public class AESEncryptActivity extends Activity {
         	}
         });
     }
-    
+    /**
+     * 
+     * @param phoneNum
+     * @param message
+     */
     private void sendSMS (String phoneNum, String message) {
     	PendingIntent pi = PendingIntent.getActivity(this, 0, new Intent(this, AESEncryptActivity.class), 0);
     	SmsManager sms = SmsManager.getDefault();
@@ -100,7 +104,13 @@ public class AESEncryptActivity extends Activity {
 	}
     
     public class Encrypt {
-    	
+    	/**
+    	 * 
+    	 * @param seed
+    	 * @param plainMsg
+    	 * @return
+    	 * @throws Exception
+    	 */
 		public String AESEncrypt(String seed, String plainMsg)
 				throws Exception {
 			/*
@@ -117,6 +127,13 @@ public class AESEncryptActivity extends Activity {
 			//return toHex(result);
 			return Base64.encodeToString(result, 0);
 		}
+		/**
+		 * 
+		 * @param raw
+		 * @param plain
+		 * @return
+		 * @throws Exception
+		 */
 		private byte[] encrypt(byte[] raw, byte[] plain) throws Exception {
 			SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
 			Cipher cipher = Cipher.getInstance("AES");
@@ -124,6 +141,12 @@ public class AESEncryptActivity extends Activity {
 			byte[] encrypted = cipher.doFinal(plain);
 			return encrypted;
 		}
+		/**
+		 * 
+		 * @param seed
+		 * @return
+		 * @throws Exception
+		 */
 
 		public byte[] getRawKey(byte[] seed) throws Exception {
 			
@@ -141,13 +164,27 @@ public class AESEncryptActivity extends Activity {
 
 		
 		//Hex Mode
+		/**
+		 * 
+		 * @param txt
+		 * @return
+		 */
 	    public String toHex(String txt) {
 	        return toHex(txt.getBytes());
 	    }
+	    /**
+	     * 
+	     * @param hex
+	     * @return
+	     */
 	    public String fromHex(String hex) {
 	        return new String(toByte(hex));
 	    }
-
+	    /**
+	     * 
+	     * @param hexString
+	     * @return
+	     */
 	    public byte[] toByte(String hexString) {
 	        int len = hexString.length()/2;
 	        byte[] result = new byte[len];
@@ -155,7 +192,11 @@ public class AESEncryptActivity extends Activity {
 	            result[i] = Integer.valueOf(hexString.substring(2*i, 2*i+2), 16).byteValue();
 	        return result;
 	    }
-
+	    /**
+	     * 
+	     * @param buf
+	     * @return
+	     */
 	    public String toHex(byte[] buf) {
 	        if (buf == null)
 	            return "";
@@ -166,12 +207,21 @@ public class AESEncryptActivity extends Activity {
 	        return result.toString();
 	    }
 	    private final String HEX = "0123456789ABCDEF";
+	    /**
+	     * 
+	     * @param sb
+	     * @param b
+	     */
 	    private void appendHex(StringBuffer sb, byte b) {
 	        sb.append(HEX.charAt((b>>4)&0x0f)).append(HEX.charAt(b&0x0f));
 	    }
     	
     }
-    
+    /**
+     * 
+     * @param menu
+     * @return
+     */
     public boolean onCreatOptionsMenu (Menu menu) {
 		popMenu(menu);
     	return (super.onCreateOptionsMenu(menu));
