@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+    <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:id="@+id/textView1" android:text="1.Enter the phone number you want to establish connection with:"></TextView>
+    <EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/editText1"></EditText>
+    <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:id="@+id/textView2" android:text="2.Enter the shared secret:"></TextView>
+    <EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/editText2" android:inputType="textPassword">
+        <requestFocus></requestFocus>
+    </EditText>
+    <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:id="@+id/textView3" android:text="3.Hit the button below to establish secure connection"></TextView>
+    <Button android:id="@+id/button1" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:layout_width="318dp" android:text="Establish Secure Connection"></Button>
+    
+</LinearLayout>
