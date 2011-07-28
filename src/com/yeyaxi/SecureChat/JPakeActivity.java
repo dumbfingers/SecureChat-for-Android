@@ -29,5 +29,22 @@ public class JPakeActivity extends Activity {
         TelephonyManager tManager = (TelephonyManager)getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
         return tManager.getDeviceId();
     }
+    
+    public void onStart(){
+    	super.onStart();
+    	JPake jpake = new JPake();
+
+		//Get phone's IMEI
+    	String signerId = jpake.GetSignerId();
+		//JPake step1
+		try {
+			jpake.step1(signerId);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	String GX1 = jpake.step1Result.get(0).toString();
+    	
+    	
+    }
 }
 

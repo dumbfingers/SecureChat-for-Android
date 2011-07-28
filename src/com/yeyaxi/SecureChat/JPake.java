@@ -22,15 +22,16 @@ public class JPake {
 		return bn_pwd;
 	}
 
-	public String GetSignerId() throws Exception {
+	public String GetSignerId(){
 		//Get Signer's ID from IMEI
 		JPakeActivity jpake = new JPakeActivity();
 		String signerId = jpake.getUID();
 		return signerId;
 	}
 
-	public void step1(BigInteger p, BigInteger x1, BigInteger x2,
-			String signerId) throws Exception {
+	public void step1(String signerId) throws Exception {
+		BigInteger x1;
+		BigInteger x2;
 		//Generate x1 in the range of [0,q-1]
 		do {
 			x1 = new BigInteger (160, new SecureRandom());
@@ -52,10 +53,11 @@ public class JPake {
 		BigInteger[] sigX2 = generateZKP(p,q,g,gx2,x2,GetSignerId());
 		
 		//return gx1, sigX1, gx2, sigX2
-		step1Result.add(gx1);
-		step1Result.add(sigX1);
-		step1Result.add(gx2);
-		step1Result.add(sigX2);
+		step1Result.add(0,gx1);
+		step1Result.add(1,sigX1);
+		step1Result.add(2,gx2);
+		step1Result.add(3,sigX2);
+		step1Result.add(4,x2);
 	}
 
 	public BigInteger[] generateZKP(BigInteger p, BigInteger q, BigInteger g,
@@ -102,17 +104,27 @@ public class JPake {
 		hash.update(k.toByteArray());
 		return new BigInteger(1, hash.digest());
 	}
+	
+	/**
+	 * step2 - Step 2 of JPake
+	 * @param gx1 is derived from the sender's step1
+	 * @param gx3 is gx1 of receiver's. Derived from the receiver's step1
+	 * @param gx4 is gx2 of receiver's. Derived from the receiver's step1
+	 * @param x2 is derived from the sender's step1
+	 * @param pwd is derived from the EditText of the sender's.
+	 * @throws Exception
+	 */
 
-	public void step2(BigInteger p, BigInteger q, BigInteger gx1,
-			BigInteger gx3, BigInteger gx4, BigInteger x2, BigInteger pwd) throws Exception {
+	public void step2(BigInteger gx1, BigInteger gx3, BigInteger gx4, BigInteger x2, BigInteger pwd) throws Exception {
 		BigInteger gA = gx1.multiply(gx3).multiply(gx4).mod(p);
 		//pwd is the shared passwd
 		BigInteger A = gA.modPow(x2.multiply(pwd).mod(q), p);
 		BigInteger[] sigX2s = generateZKP(p,q,gA,A,x2.multiply(pwd).mod(q),GetSignerId());
 		
-		step2Result.add(gA);
-		step2Result.add(A);
-		step2Result.add(sigX2s);
+		//return gA, A, sigX2s
+		step2Result.add(0,gA);
+		step2Result.add(1,A);
+		step2Result.add(2,sigX2s);
 	}
 
 	public String sessionKey(BigInteger gx4, BigInteger x2,
