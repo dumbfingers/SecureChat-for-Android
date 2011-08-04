@@ -85,7 +85,7 @@ public class JPakeActivity extends Activity {
     
     private void sendJpake(ArrayList list) {
     	if (list.isEmpty() == false) {
-    		//TODO Try to use "for" clause if managed to figure out how to handle the "received" notification.
+    		//TODO Try to use "for" and "if" clause if managed to figure out how to handle the "received" notification.
     		for (int i = 0; i < list.size(); i++) {
         		sendSMS(Constants.SMS_RECIPIENT, list.get(i).toString());
     		}
@@ -130,13 +130,16 @@ public class JPakeActivity extends Activity {
     public void onResume() {
     	super.onResume();
     	//TODO Save received strings into ArrayList
+    	int counter = 0;
 		Bundle bundleReceiver = getIntent().getExtras();
 		if (bundleReceiver != null) {
 			String msg = bundleReceiver.getString("SMS");
-			int i = 0;
-			if (!received.contains(i)){
-				++i;
-				received.add(i, msg);
+			//Find if the receiver buffer contains,
+			for (counter = 0; counter < received.size(); counter ++) {
+			    if (!received.contains(counter)) {
+			        received.add(counter, msg);
+					break;
+			    }
 			}
 		}
     }

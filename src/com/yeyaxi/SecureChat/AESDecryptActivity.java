@@ -56,6 +56,8 @@ public class AESDecryptActivity extends Activity{
 		});		
 	}
 	//For receiving SMS (Value passed from SMSReceiver)
+	//Comment out for JPake Testing
+	/*
 	public void onResume() {
 		super.onResume();
 		Bundle bundleReceiver = getIntent().getExtras();
@@ -65,6 +67,7 @@ public class AESDecryptActivity extends Activity{
 		}
 		
 	}
+	*/
 
 	public class Decrypt {
 
