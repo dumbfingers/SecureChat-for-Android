@@ -6,18 +6,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 /**
- * SMSReceiver - Receiver for AESDecrypt
+ * JPakeReceiver - SMS Receiver for JPake
  * @author Yaxi Ye
  *
  */
-public class SMSReceiver extends BroadcastReceiver {
+public class JPakeReceiver extends BroadcastReceiver{
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		// TODO Auto-generated method stub
 		Bundle bundle = intent.getExtras();
 		Object[] pdus = (Object[]) bundle.get("pdus");
-		SmsMessage messages[] = new SmsMessage[pdus.length];
+		SmsMessage[] messages = new SmsMessage[pdus.length];
 		String body = "";
 		for (int i = 0; i < pdus.length; i++) {
 			messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
@@ -39,14 +38,12 @@ public class SMSReceiver extends BroadcastReceiver {
 		catch (Exception e) {
 			
 		}
+		Intent intent_Jpake = new Intent(context, JPakeActivity.class);
+		intent_Jpake.putExtra("SMS", body);
+		context.startActivity(intent_Jpake);
 
-		Intent startDecrypt = new Intent(context, AESDecryptActivity.class);
-		startDecrypt.putExtra("SMS", body);
-		//startActivity(startDecrypt);
-		
-		startDecrypt.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		context.startActivity(startDecrypt);
 		
 	}
-}
+	
 
+}
