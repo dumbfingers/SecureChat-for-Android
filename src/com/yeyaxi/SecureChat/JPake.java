@@ -6,7 +6,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 /**
- * JPake - For JPake implementation
+ * JPake - For JPake implementation on Android
+ * Inspired by JPAKEDemo.java written by Dr. Feng Hao and the J-PAKE model
+ * http://grouper.ieee.org/groups/1363/Research/contributions/hao-ryan-2008.pdf
+ * 
  * @author Yaxi Ye
  *
  */
@@ -75,7 +78,7 @@ public class JPake {
 	}
 
 	public boolean verifyZKP(BigInteger p, BigInteger q, BigInteger g,
-			BigInteger gx, BigInteger x, BigInteger[] sig, String signerId) throws NoSuchAlgorithmException {
+			BigInteger gx, BigInteger[] sig, String signerId) throws NoSuchAlgorithmException {
 		BigInteger h = getHash(g, sig[0], gx, signerId);
 		if (gx.compareTo(p.subtract(BigInteger.ZERO)) == 1 && 
 				gx.compareTo(p.subtract(BigInteger.ONE)) == -1 && 
@@ -127,8 +130,7 @@ public class JPake {
 		step2Result.add(2,sigX2s);
 	}
 
-	public String sessionKey(BigInteger gx4, BigInteger x2,
-			BigInteger signerId_sender, BigInteger p, BigInteger q, BigInteger B, BigInteger pwd) throws NoSuchAlgorithmException {
+	public String sessionKey(BigInteger gx4, BigInteger x2, BigInteger p, BigInteger q, BigInteger B, BigInteger pwd) throws NoSuchAlgorithmException {
 		BigInteger k = getHash(gx4.modPow(x2.multiply(pwd).negate().mod(q), p).multiply(B).modPow(x2, p));
 		return new String(k.toString(16)) ;
 	}

@@ -3,6 +3,8 @@
  */
 package com.yeyaxi.SecureChat;
 
+import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -10,6 +12,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
@@ -18,6 +21,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 
 /**
@@ -27,14 +31,24 @@ import android.widget.EditText;
 public class JPakeActivity extends Activity {
     /** Called when the activity is first created. */
     public ArrayList received = new ArrayList();
-    private ArrayList <String> sendBuffer = new ArrayList <String> ();
+    private ArrayList sendBuffer = new ArrayList();
     private Button startButton;
     public EditText id;
     public EditText sharedPwd;
     private static final String SMS_SENT = "SMS_SENT_ACTION";
     private static final String SMS_DELIVERED = "SMS_DELIVERED_ACTION";
-	Intent mSendIntent = new Intent(SMS_SENT);
-	Intent mDeliveryIntent = new Intent(SMS_DELIVERED);
+	Intent mSendIntent = new Intent().setAction(SMS_SENT);
+	Intent mDeliveryIntent = new Intent().setAction(SMS_DELIVERED);
+	private SmsBroadcastReceiver smsReceiver;
+	//For store the receiver's uid
+	private String uid;
+	//For store the session Key
+	public String sessionKey;
+	//Initialize JPake
+	final JPake jpake = new JPake();
+	//For temp save the BigInteger in order to compute the session key
+	private ArrayList <BigInteger> sessionKeyBuffer = new ArrayList <BigInteger>();
+	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +58,7 @@ public class JPakeActivity extends Activity {
         id = (EditText)findViewById(R.id.editText1);
         sharedPwd = (EditText)findViewById(R.id.editText2);
         startButton = (Button)findViewById(R.id.button1);
+        
     }
     public String getUID() {
         TelephonyManager tManager = (TelephonyManager)getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
@@ -53,7 +68,7 @@ public class JPakeActivity extends Activity {
     
     public void onStart(){
     	super.onStart();
-    	final JPake jpake = new JPake();
+
 
 		//Get phone's IMEI
     	String signerId = jpake.GetSignerId();
@@ -66,21 +81,155 @@ public class JPakeActivity extends Activity {
 		
 		startButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
+		    	//Step1 of JPake
+				try {
+					jpake.step1(getUID());
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				//Buffer gx1
+		    	sendBuffer.add(0, jpake.step1Result.get(0));
+		    	//Buffer sigX1
+		    	sendBuffer.add(1, jpake.step1Result.get(1));
+		    	//Buffer gx2
+		    	sendBuffer.add(2, jpake.step1Result.get(2));
+		    	//Buffer sigX2
+		    	sendBuffer.add(3, jpake.step1Result.get(3));
+		    	//Buffer signerID
+		    	sendBuffer.add(4, getUID());
 				//Send the results of step1 via SMS to the receiver
-		    	String GX1 = jpake.step1Result.get(0).toString();
-		    	String SIGX1 = jpake.step1Result.get(1).toString();
-		    	String GX2 = jpake.step1Result.get(2).toString();
-		    	String SIGX2 = jpake.step1Result.get(3).toString();
-		    	sendBuffer.add(0, GX1);
-		    	sendBuffer.add(1, SIGX1);
-		    	sendBuffer.add(2, GX2);
-		    	sendBuffer.add(3, SIGX2);
-		    	sendJpake(sendBuffer);
+		    	if (!sendBuffer.isEmpty()) {
+		    		sendJpake(sendBuffer);
+		    	}
+		    	else {
+		    		Log.e("SecureChat", "sendBuffer is Empty!");
+		    		throw new NullPointerException("sendBuffer is Empty!");
+		    	}
+		    	try {
+					checkZKP1();
+				} catch (NoSuchAlgorithmException e) {
+					e.printStackTrace();
+				}
+		    	//Step 2 of JPake
+		    	try {
+					if (checkZKP1()){
+						try {
+							sendBuffer.clear();
+							/*
+							 * step1Result.get(0) - gx1 or gx3
+							 * step1Result.get(1) - 
+							 */
+							jpake.step2((BigInteger)jpake.step1Result.get(0), (BigInteger)received.get(0), (BigInteger)received.get(2), (BigInteger)jpake.step1Result.get(4), jpake.GetPassWord(sharedPwd.getText().toString()));
+							//Push Results of Step2 into sendBuffer
+							for (int i = 0; i < jpake.step2Result.size(); i++) {
+								sendBuffer.add(i, jpake.step2Result.get(i));
+							}
+							if (!sendBuffer.isEmpty()) {
+								sendJpake(sendBuffer);
+							}
+							else {
+								Log.e("SecureChat", "sendBuffer is Empty!");
+					    		throw new NullPointerException("sendBuffer is Empty!");
+							}
+						} catch (IllegalArgumentException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				} catch (NoSuchAlgorithmException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		    	//Rip results from Step2
+		    	if (!jpake.step2Result.isEmpty()) {
+		    		try {
+						checkZKP2();
+					} catch (NoSuchAlgorithmException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+		    	}
+		    	//Compute the Session Key
+		    	try {
+					sessionKey = jpake.sessionKey((BigInteger)sessionKeyBuffer.get(0), (BigInteger)sessionKeyBuffer.get(1), 
+							(BigInteger)sessionKeyBuffer.get(4), (BigInteger)sessionKeyBuffer.get(3), 
+							(BigInteger)sessionKeyBuffer.get(5), (BigInteger)sessionKeyBuffer.get(2));
+					Log.d("SecureChat", "Session Key: " + sessionKey);
+					Toast.makeText(getApplicationContext(), "Session Key successfully Computed!", Toast.LENGTH_SHORT).show();
+				} catch (NoSuchAlgorithmException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
-		
+	}
+    
+    private boolean checkZKP1 () throws NoSuchAlgorithmException {
+    	if (!received.isEmpty()) {
+    		//check the ZKP
+    		//Rip the Bob's g3, sigx3, g4, sigx4 from received buffer
+    		//Cast from Object to Integer
+    		BigInteger gx3 = (BigInteger)received.get(0);
+    		BigInteger[] sigX3 = (BigInteger[])received.get(1);
+    		BigInteger gx4 = (BigInteger) received.get(2);
+    		BigInteger[] sigX4 = (BigInteger[])received.get(3);
+    		if (gx4.equals(BigInteger.ONE) || !jpake.verifyZKP(jpake.p, jpake.q, jpake.g, gx3, sigX3, getUID()) || !jpake.verifyZKP(jpake.p, jpake.q, jpake.g, gx4, sigX4, getUID())) {
+    			Log.e("SecureChat", "gx4 equals 1 or invalid sigX3 and sigX4 or sigX1 and sigX2");
+    			return false;
+    		}
+    		else {
+    			Log.d("SecureChat", "ZKP1 check OK");
+    			Toast.makeText(getApplicationContext(), "ZKP1 validation passed!", Toast.LENGTH_SHORT).show();
+    			uid = (String) received.get(4);
+    			//Push gx4 or gx2 into sessionKeyBuffer
+    			sessionKeyBuffer.add(0, gx4);
+    			//Push x2 or x4 into sessionKeyBuffer
+    			sessionKeyBuffer.add(1, (BigInteger) jpake.step1Result.get(4));
+    			//Push (BigInteger)pwd into sessionKeyBuffer
+    			sessionKeyBuffer.add(2, jpake.GetPassWord(sharedPwd.getText().toString()));
+    			//Push q into sessionKeyBuffer
+    			sessionKeyBuffer.add(3, jpake.q);
+    			//Push p into sessionKeyBuffer
+    			sessionKeyBuffer.add(4, jpake.p);
+    			
+    			received.clear();
+    			return true;
+    		}
+    	}
+    	else {
+    		Log.e("SecureChat", "Received buffer error.");
+    		return false;
+    	}
     	
+    }
     	
+    private boolean checkZKP2() throws NoSuchAlgorithmException {
+    	if (!received.isEmpty()) {
+    		//Check ZKP from Step2
+    		//Rip gB, B, sigX4s from received buffer
+    		BigInteger gB = (BigInteger)received.get(0);
+    		BigInteger B = (BigInteger)received.get(1);
+    		BigInteger[] sigX4s = (BigInteger[])received.get(2);
+    		if (!jpake.verifyZKP(jpake.p, jpake.q, gB, B, sigX4s, uid)) {
+    			Log.e("SecureChat", "Invalid sigX4s or sigX2s");
+    			return false;
+    		}
+    		else {
+    			Log.d("SecureChat", "ZKP2 check OK");
+    			Toast.makeText(getApplicationContext(), "ZKP2 validation passed!", Toast.LENGTH_SHORT).show();
+    			//Push B or A into sessionKeyBuffer
+    			sessionKeyBuffer.add(5, B);
+    			received.clear();
+    			return true;
+    		}
+    	}
+    	else {
+    		Log.e("SecureChat", "Received buffer error.");
+    		return false;
+    	}
     }
     
     private void sendJpake(ArrayList list) {
@@ -121,20 +270,31 @@ public class JPakeActivity extends Activity {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			
+			if (intent.getAction().equals(SMS_SENT)) {
+				Toast.makeText(context, "SMS Sent", Toast.LENGTH_SHORT).show();
+				Log.d("SecureChat", "SMS sent");
+			}
+			if (intent.getAction().equals(SMS_DELIVERED)) {
+				Toast.makeText(context, "SMS Delivered", Toast.LENGTH_SHORT).show();
+				Log.d("SecureChat", "SMS delivered");
+			}
 		}
 		
     	
     }
     
     public void onResume() {
+    	//Register Broadcast Receiver
+    	smsReceiver = new SmsBroadcastReceiver();
+    	IntentFilter filter = new IntentFilter();
+    	filter.addAction(SMS_SENT);
     	super.onResume();
     	//TODO Save received strings into ArrayList
     	int counter = 0;
 		Bundle bundleReceiver = getIntent().getExtras();
 		if (bundleReceiver != null) {
 			String msg = bundleReceiver.getString("SMS");
-			//Find if the receiver buffer contains,
+			//Find if the receiver buffer contains, then save the received msg.
 			for (counter = 0; counter < received.size(); counter ++) {
 			    if (!received.contains(counter)) {
 			        received.add(counter, msg);
@@ -144,7 +304,7 @@ public class JPakeActivity extends Activity {
 		}
     }
     public void onPause() {
-    	
+    	unregisterReceiver(smsReceiver);
     }
     public void onStop() {
     	super.onStop();
