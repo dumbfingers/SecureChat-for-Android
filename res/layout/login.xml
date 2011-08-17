@@ -5,12 +5,17 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent">
     <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:id="@+id/textView1" android:text="1.Enter the phone number you want to establish connection with:"></TextView>
-    <EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/editText1"></EditText>
+    <EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/editText1" android:phoneNumber="true"></EditText>
     <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:id="@+id/textView2" android:text="2.Enter the shared secret:"></TextView>
     <EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/editText2" android:inputType="textPassword">
         <requestFocus></requestFocus>
     </EditText>
-    <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:id="@+id/textView3" android:text="3.Hit the button below to establish secure connection"></TextView>
+    <TextView android:layout_height="wrap_content" android:id="@+id/textView4" android:textAppearance="?android:attr/textAppearanceLarge" android:layout_width="wrap_content" android:text="3. Choose a role to play with:"></TextView>
+    <LinearLayout android:layout_height="wrap_content" android:id="@+id/linearLayout1" android:layout_width="wrap_content" android:layout_gravity="fill_horizontal">
+        <RadioButton android:layout_height="wrap_content" android:id="@+id/radioButton1" android:layout_width="wrap_content" android:text="Alice"></RadioButton>
+        <RadioButton android:layout_height="wrap_content" android:id="@+id/radioButton2" android:layout_width="wrap_content" android:text="Bob"></RadioButton>
+    </LinearLayout>
+    <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:id="@+id/textView3" android:text="4.Hit the button below to establish secure connection"></TextView>
     <Button android:id="@+id/button1" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:layout_width="318dp" android:text="Establish Secure Connection"></Button>
     
 </LinearLayout>
