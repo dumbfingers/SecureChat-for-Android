@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import com.yeyaxi.SecureChat.JPake;
 /**
  * 
  * @author Yaxi Ye
@@ -24,11 +25,13 @@ public class SecureChatActivity extends Activity {
     public EditText sharedPwd;
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.jpake);
+		setContentView(R.layout.login);
 		startButton = (Button)findViewById(R.id.button1);
         phoneNum = (EditText)findViewById(R.id.editText1);
         sharedPwd = (EditText)findViewById(R.id.editText2);
 		//this.setsetBaseContext();
+        //JPake jpake = new JPake();
+        startButton.setOnClickListener(buttonListener);
 	}
 	
 	OnClickListener buttonListener = new OnClickListener() {

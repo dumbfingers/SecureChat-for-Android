@@ -5,6 +5,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+
+import android.app.Activity;
 /**
  * JPake - For JPake implementation on Android
  * Inspired by JPAKEDemo.java written by Dr. Feng Hao and the J-PAKE model
@@ -13,13 +15,14 @@ import java.util.ArrayList;
  * @author Yaxi Ye
  *
  */
-public class JPake {
+public class JPake extends Activity{
 	BigInteger p = new BigInteger(Constants.BigInteger_P, 16);
 	BigInteger q = new BigInteger(Constants.BigInteger_Q, 16);
 	BigInteger g = new BigInteger(Constants.BigInteger_G, 16);
 	ArrayList step1Result = new ArrayList();
 	ArrayList step2Result = new ArrayList();
 	
+	//Below this line are the implementation of JPake
 	public BigInteger GetPassWord(String pwd) throws IllegalArgumentException {
 		BigInteger bn_pwd = new BigInteger(pwd.getBytes());
 		return bn_pwd;
@@ -56,11 +59,13 @@ public class JPake {
 		BigInteger[] sigX2 = generateZKP(p,q,g,gx2,x2, signerId);
 		
 		//return gx1, sigX1, gx2, sigX2
-		step1Result.add(0,gx1);
-		step1Result.add(1,sigX1);
-		step1Result.add(2,gx2);
-		step1Result.add(3,sigX2);
-		step1Result.add(4,x2);
+		step1Result.add(0, gx1);
+		step1Result.add(1, sigX1[0]);
+		step1Result.add(2, sigX1[1]);
+		step1Result.add(3, gx2);
+		step1Result.add(4, sigX2[0]);
+		step1Result.add(5, sigX2[1]);
+		step1Result.add(6,x2);
 	}
 
 	public BigInteger[] generateZKP(BigInteger p, BigInteger q, BigInteger g,
@@ -125,9 +130,10 @@ public class JPake {
 		BigInteger[] sigX2s = generateZKP(p, q, gA, A, x2.multiply(pwd).mod(q), signerId);
 		
 		//return gA, A, sigX2s
-		step2Result.add(0,gA);
-		step2Result.add(1,A);
-		step2Result.add(2,sigX2s);
+		step2Result.add(0, gA);
+		step2Result.add(1, A);
+		step2Result.add(2, sigX2s[0]);
+		step2Result.add(3, sigX2s[1]);
 	}
 
 	public String sessionKey(BigInteger gx4, BigInteger x2, BigInteger p, BigInteger q, BigInteger B, BigInteger pwd) throws NoSuchAlgorithmException {
@@ -162,4 +168,5 @@ public class JPake {
 		}
 	}
 	*/
+	
 }

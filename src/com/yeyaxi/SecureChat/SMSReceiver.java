@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 /**
- * SMSReceiver - Receiver for AESDecrypt
+ * SMSReceiver - Receiver for SMS
  * @author Yaxi Ye
  *
  */
@@ -24,28 +24,32 @@ public class SMSReceiver extends BroadcastReceiver {
 		}
 		SmsMessage sms = messages[0];
 		try {
-			if (messages.length == 1 || sms.isReplace()) {
-				body = sms.getDisplayMessageBody();
-				
-			}
-			else {
-				StringBuilder bodyText = new StringBuilder();
-				for (int i = 0; i < messages.length; i++) {
-					bodyText.append(messages[i].getMessageBody());
+			//Performs action only when received SMS from these 2 addresses.
+			if (sms.getOriginatingAddress() == Constants.SMS_RECIPIENT || sms.getOriginatingAddress() == Constants.SMS_RECIPIENT2) {
+				if (messages.length == 1 || sms.isReplace()) {
+					body = sms.getDisplayMessageBody();
+					
 				}
-				body = bodyText.toString();
+				else {
+					StringBuilder bodyText = new StringBuilder();
+					for (int i = 0; i < messages.length; i++) {
+						bodyText.append(messages[i].getMessageBody());
+					}
+					body = bodyText.toString();
+				}
 			}
+
 		}
 		catch (Exception e) {
 			
 		}
 
-		Intent startDecrypt = new Intent(context, AESDecryptActivity.class);
-		startDecrypt.putExtra("SMS", body);
+		//Intent startDecrypt = new Intent(context, AESDecryptActivity.class);
+		//startDecrypt.putExtra("SMS", body);
 		//startActivity(startDecrypt);
 		
-		startDecrypt.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		context.startActivity(startDecrypt);
+		//startDecrypt.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		//context.startActivity(startDecrypt);
 		
 	}
 }

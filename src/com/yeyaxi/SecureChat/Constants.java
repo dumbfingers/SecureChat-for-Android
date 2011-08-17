@@ -8,7 +8,8 @@ public class Constants {
 	//Define AES KEY SIZE, choose from 128 or 256 bits
 	public static final int AES_KEY_SIZE = 128;
 	//Define the sms recipient, for debugging purposes only
-	public static final String SMS_RECIPIENT = "07427186687";
+	public static final String SMS_RECIPIENT = "07412057270";
+	public static final String SMS_RECIPIENT2 = "07593068512";
 	/**
 	 * BigIntegers below are copied from Dr. Feng Hao's Jpake implementation, it was initially from the NIST.
 	 * @see http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/DSA2_All.pdf
