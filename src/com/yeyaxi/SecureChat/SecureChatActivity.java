@@ -44,19 +44,19 @@ public class SecureChatActivity extends Activity {
 				intent_Jpake.putExtra("phoneNumber", phoneNum.getText().toString());
 				intent_Jpake.putExtra("secret", sharedPwd.getText().toString());
 				intent_Jpake.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				SecureChatActivity.this.startActivityForResult(intent_Jpake, Constants.CALLED_BY_SECURECHAT_ACTIVITY);
+				SecureChatActivity.this.startActivity(intent_Jpake);
 			}
 		}
 		
 	};
 	
 	
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (resultCode == Constants.CALLED_BY_SECURECHAT_ACTIVITY) {
-			
-		}
-		
-	}
+//	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//		if (resultCode == Constants.CALLED_BY_SECURECHAT_ACTIVITY) {
+//			
+//		}
+//		
+//	}
 
     public boolean onCreateOptionsMenu(Menu menu) {
     	popMenu(menu);

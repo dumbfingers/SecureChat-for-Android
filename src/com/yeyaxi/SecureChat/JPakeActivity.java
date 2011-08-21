@@ -86,6 +86,11 @@ public class JPakeActivity extends Activity {
         
         packet1Button = (Button)findViewById(R.id.button1);
         packet1Button.setOnClickListener(l);
+        
+        IntentFilter filterSms = new IntentFilter();
+        filterSms.addAction("Message");
+        
+        registerReceiver(smsReceiver, filterSms);
 
     }
 	
@@ -332,7 +337,19 @@ public class JPakeActivity extends Activity {
     }
     
 
-    
+    private BroadcastReceiver smsReceiver = new BroadcastReceiver() {
+    	public void onReceive(Context context, Intent intent) {
+    		if(intent.getAction().equals("Message")) {
+    			String msg = intent.getStringExtra("SMS");
+    			//Log.d("SecureChat", "SMS" + msg);
+    			received.add(received.size(), msg);
+    			Log.d("SecureChat", "JPakeActivity, Received " + received.size());
+    			Toast.makeText(context, "Received " + received.size() + " packet(s) in total.", Toast.LENGTH_SHORT).show();
+    			//Log.d("SecureChat", "Content " + received.get(0));
+    		}
+    		
+    	}
+    };
 
 
     public void onResume() {
@@ -343,23 +360,35 @@ public class JPakeActivity extends Activity {
     	IntentFilter filter = new IntentFilter();
     	filter.addAction(SMS_SENT);
     	super.onResume();
+    	*/
     	//TODO Save received strings into ArrayList
-    	int counter = 0;
-		Bundle bundleReceiver = getIntent().getExtras();
-		if (bundleReceiver != null) {
-			String msg = bundleReceiver.getString("SMS");
-			//Find if the receiver buffer contains, then save the received msg.
-			for (counter = 0; counter < received.size(); counter ++) {
-			    if (!received.contains(counter)) {
-			        received.add(counter, msg);
-					break;
-			    }
-			}
-		}
-		*/
+//    	String msg = null;
+//		Bundle bundleReceiver = getIntent().getExtras();
+//		if (bundleReceiver != null) {
+//			msg = bundleReceiver.getString("SMS");
+//			//Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
+//			//Find if the receiver buffer contains, then save the received msg.
+//			for (int counter = 0; counter < 11; counter ++) {
+//			    if (!received.contains(counter)) {
+//			        received.add(counter, msg);
+//					break;
+//			    }
+//			}
+//			//TODO While received contains enough data, launch checkZKP1()
+//			try {
+//				checkZKP1();
+//			} catch (NoSuchAlgorithmException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+		
+		
+    	
     }
     public void onPause() {
-    	//unregisterReceiver(smsReceiver);
+    	super.onPause();
+    	unregisterReceiver(smsReceiver);
     }
     public void onStop() {
     	super.onStop();

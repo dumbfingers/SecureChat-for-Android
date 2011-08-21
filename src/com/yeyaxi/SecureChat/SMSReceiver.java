@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
+import android.util.Log;
 /**
  * SMSReceiver - Receiver for SMS
  * @author Yaxi Ye
@@ -25,7 +26,7 @@ public class SMSReceiver extends BroadcastReceiver {
 		SmsMessage sms = messages[0];
 		try {
 			//Performs action only when received SMS from these 2 addresses.
-			if (sms.getOriginatingAddress() == Constants.SMS_RECIPIENT || sms.getOriginatingAddress() == Constants.SMS_RECIPIENT2) {
+			//if (sms.getOriginatingAddress() == Constants.SMS_RECIPIENT || sms.getOriginatingAddress() == Constants.SMS_RECIPIENT2) {
 				if (messages.length == 1 || sms.isReplace()) {
 					body = sms.getDisplayMessageBody();
 					
@@ -37,7 +38,7 @@ public class SMSReceiver extends BroadcastReceiver {
 					}
 					body = bodyText.toString();
 				}
-			}
+			//}
 
 		}
 		catch (Exception e) {
@@ -50,7 +51,15 @@ public class SMSReceiver extends BroadcastReceiver {
 		
 		//startDecrypt.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		//context.startActivity(startDecrypt);
+		//Intent i = new Intent(context, JPakeActivity.class);
+		Log.d("SecureChat", "Receiver Receives " + body);
+		Intent i = new Intent();
+		i.setAction("Message");
+		//i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		i.putExtra("SMS", body);
 		
+		//context.startActivity(i);
+		context.sendBroadcast(i);
 	}
 }
 
