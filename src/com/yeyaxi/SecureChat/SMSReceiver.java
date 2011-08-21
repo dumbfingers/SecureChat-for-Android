@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
-import android.util.Log;
 /**
  * SMSReceiver - Receiver for SMS
  * @author Yaxi Ye
@@ -51,15 +50,12 @@ public class SMSReceiver extends BroadcastReceiver {
 		
 		//startDecrypt.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		//context.startActivity(startDecrypt);
-		//Intent i = new Intent(context, JPakeActivity.class);
-		Log.d("SecureChat", "Receiver Receives " + body);
 		Intent i = new Intent();
+		//Log.d("SecureChat", "Receiver receives " + body);
 		i.setAction("Message");
-		//i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		i.putExtra("SMS", body);
-		
-		//context.startActivity(i);
 		context.sendBroadcast(i);
+		
 	}
 }
 
