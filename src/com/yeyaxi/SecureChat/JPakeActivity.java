@@ -139,66 +139,6 @@ public class JPakeActivity extends Activity {
     public void onStart(){
     	super.onStart();
 
-    	/*
-    	try {
-			checkZKP1();
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-    	//Step 2 of JPake
-    	try {
-			if (checkZKP1()){
-				try {
-					sendBuffer.clear();
-					/*
-					 * step1Result.get(0) - gx1 or gx3
-					 * step1Result.get(1) - 
-					 
-					jpake.step2((BigInteger)(jpake.step1Result.get(0)), (BigInteger)(received.get(0)), ((BigInteger)received.get(3)), (BigInteger)(jpake.step1Result.get(6)), jpake.GetPassWord(secret), signerId);
-					//Push Results of Step2 into sendBuffer
-					for (int i = 0; i < jpake.step2Result.size(); i++) {
-						sendBuffer.add(i, jpake.step2Result.get(i));
-					}
-					if (!sendBuffer.isEmpty()) {
-						sendJpake(sendBuffer);
-					}
-					else {
-						Log.e("SecureChat", "sendBuffer is Empty!");
-			    		throw new NullPointerException("sendBuffer is Empty!");
-					}
-				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	//Rip results from Step2
-    	if (!jpake.step2Result.isEmpty()) {
-    		try {
-				checkZKP2();
-			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    	}
-    	//Compute the Session Key
-    	try {
-			sessionKey = jpake.sessionKey((BigInteger)sessionKeyBuffer.get(0), (BigInteger)sessionKeyBuffer.get(1), 
-					(BigInteger)sessionKeyBuffer.get(4), (BigInteger)sessionKeyBuffer.get(3), 
-					(BigInteger)sessionKeyBuffer.get(5), (BigInteger)sessionKeyBuffer.get(2));
-			Log.d("SecureChat", "Session Key: " + sessionKey);
-			Toast.makeText(getApplicationContext(), "Session Key successfully Computed!", Toast.LENGTH_SHORT).show();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	*/
 	}
     /**
      * checkZKP1 - Method of ZKP checking in Step 1 of Jpake
@@ -225,7 +165,7 @@ public class JPakeActivity extends Activity {
     		else {
     			Log.d("SecureChat", "ZKP1 check OK");
     			Toast.makeText(getApplicationContext(), "ZKP1 validation passed!", Toast.LENGTH_SHORT).show();
-    			uid = (String)(received.get(11));
+    			uid = (String)(received.get(6));
     			//Push gx4 or gx2 into sessionKeyBuffer
     			sessionKeyBuffer.add(0, gx4);
     			//Push x2 or x4 into sessionKeyBuffer
@@ -341,17 +281,86 @@ public class JPakeActivity extends Activity {
     	public void onReceive(Context context, Intent intent) {
     		if(intent.getAction().equals("Message")) {
     			String msg = intent.getStringExtra("SMS");
-    			//Log.d("SecureChat", "SMS" + msg);
+    			Log.d("SecureChat", "SMS " + msg);
     			received.add(received.size(), msg);
     			Log.d("SecureChat", "JPakeActivity, Received " + received.size());
     			Toast.makeText(context, "Received " + received.size() + " packet(s) in total.", Toast.LENGTH_SHORT).show();
     			//Log.d("SecureChat", "Content " + received.get(0));
+    			if (received.size() == 11) {
+    				//Fire up a Thread
+    				handlePackets.start();
+    			}
     		}
     		
     	}
     };
 
+    //Thread for onReceive method to process Packet sent from Bob and take on the JPake
+    private Thread handlePackets = new Thread(new Runnable() {
 
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			try {
+				if(checkZKP1()) {
+			    	//Step 2 of JPake
+					try {
+						Log.d("SecureChat", "SendBuffer will be cleared! Size before clear: " + sendBuffer.size());
+						sendBuffer.clear();
+						Log.d("SecureChat", "SendBuffer Cleared!");
+						/*
+						 * step1Result.get(0) - gx1 or gx3
+						 * step1Result.get(1) -
+						 */ 
+
+						jpake.step2((BigInteger)(jpake.step1Result.get(0)), (BigInteger)(received.get(0)), ((BigInteger)received.get(3)), (BigInteger)(jpake.step1Result.get(6)), jpake.GetPassWord(secret), signerId);
+						//Push Results of Step2 into sendBuffer
+						for (int i = 0; i < jpake.step2Result.size(); i++) {
+							sendBuffer.add(i, jpake.step2Result.get(i));
+						}
+						if (!sendBuffer.isEmpty()) {
+							sendJpake(sendBuffer);
+						}
+						else {
+							Log.e("SecureChat", "sendBuffer is Empty!");
+							throw new NullPointerException("sendBuffer is Empty!");
+						}
+					} catch (IllegalArgumentException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//Rip results from Step2
+			if (!jpake.step2Result.isEmpty()) {
+				try {
+					checkZKP2();
+				} catch (NoSuchAlgorithmException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			//Compute the Session Key
+			try {
+				sessionKey = jpake.sessionKey((BigInteger)sessionKeyBuffer.get(0), (BigInteger)sessionKeyBuffer.get(1), 
+						(BigInteger)sessionKeyBuffer.get(4), (BigInteger)sessionKeyBuffer.get(3), 
+						(BigInteger)sessionKeyBuffer.get(5), (BigInteger)sessionKeyBuffer.get(2));
+				Log.d("SecureChat", "Session Key: " + sessionKey);
+				Toast.makeText(getBaseContext(), "Session Key successfully Computed!", Toast.LENGTH_SHORT).show();
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+    });
+    	
+    
     public void onResume() {
     	super.onResume();
     	//Register Broadcast Receiver
@@ -382,6 +391,10 @@ public class JPakeActivity extends Activity {
 //				e.printStackTrace();
 //			}
 //		}
+    	//onResume does not moniter received buffer. Method below won't work
+//    	if (received.size() == 3) {
+//    		Log.d("SecureChat", "onResume Triggered SUCCESSFULLY!");
+//    	}
 		
 		
     	
@@ -394,7 +407,7 @@ public class JPakeActivity extends Activity {
     	super.onStop();
     	//Unregister the Receiver after Authentication procedure has finished. 
     	//Reference: http://stackoverflow.com/questions/6529276/android-how-to-unregister-a-receiver-created-in-the-manifest/6529365#6529365
-
+    	handlePackets.stop();
     }
 }
 

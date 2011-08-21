@@ -25,6 +25,7 @@
             </intent-filter>
         </receiver>
         <activity android:name="JPakeActivity"></activity>
+        <activity android:name="JPakeActivityB"></activity>
 
     </application>
 </manifest>
