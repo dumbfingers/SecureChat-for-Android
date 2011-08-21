@@ -9,6 +9,6 @@
     <TextView android:id="@+id/textView2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Step 1"></TextView>
     <Button android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/button1" android:text="Send Packet 1"></Button>
     <TextView android:id="@+id/textView3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Step2"></TextView>
-    <Button android:layout_height="wrap_content" android:id="@+id/button2" android:layout_width="match_parent" android:text="Send Packet 2" android:clickable="false"></Button>
+    <Button android:layout_height="wrap_content" android:id="@+id/button2" android:layout_width="match_parent" android:text="Send Packet 2" android:clickable="true"></Button>
     
 </LinearLayout>

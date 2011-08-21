@@ -33,12 +33,10 @@ public class JPakeActivity extends Activity {
     public ArrayList received = new ArrayList();
     private ArrayList sendBuffer = new ArrayList();
     private Button packet1Button;
+    private Button packet2Button;
     
     private static final String SMS_SENT = "com.yeyaxi.SMS_SENT_ACTION";
-    //private static final String SMS_DELIVERED = "com.yeyaxi.SMS_DELIVERED_ACTION";
-	//Intent mSendIntent = new Intent().setAction(SMS_SENT);
-	//Intent mDeliveryIntent = new Intent().setAction(SMS_DELIVERED);
-	//private SmsBroadcastReceiver smsReceiver;
+
 	//For store the receiver's uid
 	private String uid;
 	//For store the session Key
@@ -50,7 +48,7 @@ public class JPakeActivity extends Activity {
 	private String phoneNum;
 	//For temp save the BigInteger in order to compute the session key
 	private ArrayList <BigInteger> sessionKeyBuffer = new ArrayList <BigInteger>();
-	
+	private int flag;
 
 	
 	@Override
@@ -85,8 +83,10 @@ public class JPakeActivity extends Activity {
         }, new IntentFilter(SMS_SENT));
         
         packet1Button = (Button)findViewById(R.id.button1);
+        packet2Button = (Button)findViewById(R.id.button2);
         packet1Button.setOnClickListener(l);
-        
+        //send packet 2 Button created invisibly.
+        packet2Button.setVisibility(packet2Button.INVISIBLE);
         IntentFilter filterSms = new IntentFilter();
         filterSms.addAction("Message");
         
@@ -177,7 +177,7 @@ public class JPakeActivity extends Activity {
     			//Push p into sessionKeyBuffer
     			sessionKeyBuffer.add(4, jpake.p);
     			
-    			received.clear();
+    			//received.clear();
     			return true;
     		}
     	}
@@ -210,7 +210,6 @@ public class JPakeActivity extends Activity {
     			Toast.makeText(getApplicationContext(), "ZKP2 validation passed!", Toast.LENGTH_SHORT).show();
     			//Push B or A into sessionKeyBuffer
     			sessionKeyBuffer.add(5, B);
-    			received.clear();
     			return true;
     		}
     	}
@@ -241,8 +240,8 @@ public class JPakeActivity extends Activity {
 					}
 					sendSMS(phoneNum, ((String)list.get(6)));
 					//Send Jpake in Step2
-				case 4:
-					for (int i = 0; i < 4; i++) {
+				case 5:
+					for (int i = 0; i < 5; i++) {
 						sendSMS(phoneNum, ((BigInteger)(list.get(i))).toString(16));
 					}
 					
@@ -290,6 +289,12 @@ public class JPakeActivity extends Activity {
     				//Fire up a Thread
     				handlePackets.start();
     			}
+    			if ((flag == 1) && (received.size() == 1)) {
+    				String key = (String)(received.get(0));
+    				if(checkSessionKey(key, sessionKey)) {
+    					Toast.makeText(getBaseContext(), "Secure Connection Established!", Toast.LENGTH_LONG).show();
+    				}
+    			}
     		}
     		
     	}
@@ -314,17 +319,7 @@ public class JPakeActivity extends Activity {
 						 */ 
 
 						jpake.step2((BigInteger)(jpake.step1Result.get(0)), (BigInteger)(received.get(0)), ((BigInteger)received.get(3)), (BigInteger)(jpake.step1Result.get(6)), jpake.GetPassWord(secret), signerId);
-						//Push Results of Step2 into sendBuffer
-						for (int i = 0; i < jpake.step2Result.size(); i++) {
-							sendBuffer.add(i, jpake.step2Result.get(i));
-						}
-						if (!sendBuffer.isEmpty()) {
-							sendJpake(sendBuffer);
-						}
-						else {
-							Log.e("SecureChat", "sendBuffer is Empty!");
-							throw new NullPointerException("sendBuffer is Empty!");
-						}
+
 					} catch (IllegalArgumentException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -340,7 +335,12 @@ public class JPakeActivity extends Activity {
 			//Rip results from Step2
 			if (!jpake.step2Result.isEmpty()) {
 				try {
-					checkZKP2();
+					if(checkZKP2()) {
+						//Push Results of Step2 into sendBuffer
+						for (int i = 0; i < jpake.step2Result.size(); i++) {
+							sendBuffer.add(i, jpake.step2Result.get(i));
+						}
+					}
 				} catch (NoSuchAlgorithmException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -357,6 +357,19 @@ public class JPakeActivity extends Activity {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			sendBuffer.add(4, sessionKey);
+			if (!sendBuffer.isEmpty()) {
+				sendJpake(sendBuffer);
+			}
+			else {
+				Log.e("SecureChat", "sendBuffer is Empty!");
+				throw new NullPointerException("sendBuffer is Empty!");
+			}
+			//Set flag
+			flag = 1;
+			received.clear();
+			//Set send packet 2 button to be visible.
+			//packet2Button.setVisibility(packet2Button.VISIBLE);
 		}
     });
     	
@@ -408,6 +421,17 @@ public class JPakeActivity extends Activity {
     	//Unregister the Receiver after Authentication procedure has finished. 
     	//Reference: http://stackoverflow.com/questions/6529276/android-how-to-unregister-a-receiver-created-in-the-manifest/6529365#6529365
     	handlePackets.stop();
+    }
+    
+    private boolean checkSessionKey(String key1, String key2) {
+		
+    	if (key1.equals(key2)) {
+    		return true;
+    	}
+    	else {
+    	
+    		return false;
+    	}
     }
 }
 
