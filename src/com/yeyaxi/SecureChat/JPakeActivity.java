@@ -31,7 +31,7 @@ import android.widget.Toast;
 public class JPakeActivity extends Activity {
     /** Called when the activity is first created. */
     public ArrayList received = new ArrayList();
-    private ArrayList sendBuffer = new ArrayList();
+    private ArrayList<String> sendBuffer = new ArrayList<String> ();
     private Button packet1Button;
     private Button packet2Button;
     
@@ -119,7 +119,7 @@ public class JPakeActivity extends Activity {
 	    	sendBuffer.add(6, getUID());
 			//Send the results of step1 via SMS to the receiver
 	    	if (!sendBuffer.isEmpty()) {
-	    		sendJpake(sendBuffer);
+	    		sendMessageThread.start();
 	    	}
 	    	else {
 	    		Log.e("SecureChat", "sendBuffer is Empty!");
@@ -150,14 +150,14 @@ public class JPakeActivity extends Activity {
     		//check the ZKP
     		//Rip the Bob's g3, sigx3, g4, sigx4 from received buffer
     		//Cast from Object to Integer
-    		BigInteger gx3 = (BigInteger)received.get(0);
+    		BigInteger gx3 = new BigInteger((String)received.get(0));
     		BigInteger[] sigX3 = null;
-    		sigX3[0] = (BigInteger)(received.get(1));
-    		sigX3[1] = (BigInteger)(received.get(2));
-    		BigInteger gx4 = (BigInteger)(received.get(3));
+    		sigX3[0] = new BigInteger((String)received.get(1));
+    		sigX3[1] = new BigInteger((String)received.get(2));
+    		BigInteger gx4 = new BigInteger((String)received.get(3));
     		BigInteger[] sigX4 = null;
-    		sigX4[0] = (BigInteger)(received.get(4));
-    		sigX4[1] = (BigInteger)(received.get(5));
+    		sigX4[0] = new BigInteger((String)received.get(4));
+    		sigX4[1] = new BigInteger((String)received.get(5));
     		if (gx4.equals(BigInteger.ONE) || !jpake.verifyZKP(jpake.p, jpake.q, jpake.g, gx3, sigX3, getUID()) || !jpake.verifyZKP(jpake.p, jpake.q, jpake.g, gx4, sigX4, getUID())) {
     			Log.e("SecureChat", "gx4 equals 1 or invalid sigX3 and sigX4 or sigX1 and sigX2");
     			return false;
@@ -169,7 +169,7 @@ public class JPakeActivity extends Activity {
     			//Push gx4 or gx2 into sessionKeyBuffer
     			sessionKeyBuffer.add(0, gx4);
     			//Push x2 or x4 into sessionKeyBuffer
-    			sessionKeyBuffer.add(1, (BigInteger) (jpake.step1Result.get(6)));
+    			sessionKeyBuffer.add(1, new BigInteger((String)jpake.step1Result.get(6)));
     			//Push (BigInteger)pwd into sessionKeyBuffer
     			sessionKeyBuffer.add(2, jpake.GetPassWord(secret));
     			//Push q into sessionKeyBuffer
@@ -196,11 +196,11 @@ public class JPakeActivity extends Activity {
     	if (!received.isEmpty()) {
     		//Check ZKP from Step2
     		//Rip gB, B, sigX4s from received buffer
-    		BigInteger gB = (BigInteger)received.get(7);
-    		BigInteger B = (BigInteger)received.get(8);
+    		BigInteger gB = new BigInteger((String)received.get(7));
+    		BigInteger B = new BigInteger((String)received.get(8));
     		BigInteger[] sigX4s = null;
-    		sigX4s[0] = (BigInteger)received.get(9);
-    		sigX4s[1] = (BigInteger)received.get(10);
+    		sigX4s[0] = new BigInteger((String)received.get(9));
+    		sigX4s[1] = new BigInteger((String)received.get(10));
     		if (!jpake.verifyZKP(jpake.p, jpake.q, gB, B, sigX4s, uid)) {
     			Log.e("SecureChat", "Invalid sigX4s or sigX2s");
     			return false;
@@ -222,54 +222,28 @@ public class JPakeActivity extends Activity {
      * sendJpake - Method for passing the Jpake content to the sending procedure.
      * @param list - Jpake content wrapped with ArrayList
      */
-    private void sendJpake(ArrayList list) {
-    	if (list.isEmpty() == false) {
-    		//TODO Try to use "for" and "if" clause if managed to figure out how to handle the "received" notification.
-    		//for (int i = 0; i < list.size(); i++) {
-        		//sendSMS(phoneNum, (String)list.get(i));
-    		//}
-    		//sendSMS(Constants.SMS_RECIPIENT, list.get(0).toString());
-    		//sendSMS(Constants.SMS_RECIPIENT, list.get(1).toString());
-    		//sendSMS(Constants.SMS_RECIPIENT, list.get(2).toString());
-    		//sendSMS(Constants.SMS_RECIPIENT, list.get(3).toString());
-			switch(list.size()) {
-				//Send Jpake in Step1
-				case 7:
-					for (int i = 0; i < 6; i++) {
-						sendSMS(phoneNum, ((BigInteger)(list.get(i))).toString(16));
-					}
-					sendSMS(phoneNum, ((String)list.get(6)));
-					//Send Jpake in Step2
-				case 5:
-					for (int i = 0; i < 5; i++) {
-						sendSMS(phoneNum, ((BigInteger)(list.get(i))).toString(16));
-					}
-					
-			}
-
-    	}
-    	else {
-    		Log.e("SecureChat", "Send Buffer Empty, Check JPake computation!", new IllegalArgumentException ("Send Buffer Error"));
-    		throw new IllegalArgumentException ("Send Buffer Empty");
-    	}
-    }
+//    private void sendJpake(ArrayList list) {
+//    	if (list.isEmpty() == false) {
+//    		//TODO Try to use "for" and "if" clause if managed to figure out how to handle the "received" notification.
+//
+//    		
+//    	}
+//    	else {
+//    		Log.e("SecureChat", "Send Buffer Empty, Check JPake computation!", new IllegalArgumentException ("Send Buffer Error"));
+//    		throw new IllegalArgumentException ("Send Buffer Empty");
+//    	}
+//    }
     /**
      * sendSMS - Method for sending SMS
      * @param phoneNum - SMS recipient
      * @param message - SMS content
      */
     private void sendSMS (String phoneNum, String message) {
-    	//PendingIntent pi = PendingIntent.getActivity(this, 0, new Intent(this, AESEncryptActivity.class), 0);
-    	//ArrayList <PendingIntent> sentIntents = new ArrayList <PendingIntent>();
-    	//ArrayList <PendingIntent> deliveryIntents = new ArrayList <PendingIntent>();
+
     	SmsManager sms = SmsManager.getDefault();
     	//Divide message into several parts
     	ArrayList <String> parts = sms.divideMessage(message);
-    	//Initialize intents
-    	//for (int i = 0; i < parts.size(); i++) {
-    		//sentIntents.add(PendingIntent.getBroadcast(this, 0, mSendIntent, 0));
-    		//deliveryIntents.add(PendingIntent.getBroadcast(this, 0, mDeliveryIntent, 0));
-    	//}
+
     	for (String msg : parts) {
     		sms.sendTextMessage(phoneNum, null, msg, PendingIntent.getBroadcast(JPakeActivity.this, 0, new Intent(SMS_SENT), 0), null);   	
     	}
@@ -299,6 +273,33 @@ public class JPakeActivity extends Activity {
     		
     	}
     };
+    
+    private Thread sendMessageThread = new Thread(new Runnable() {
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			if (!sendBuffer.isEmpty()) {
+				//sendJpake(sendBuffer);
+				for (String msg:sendBuffer) {
+					sendSMS(phoneNum, msg);
+					
+					try {
+						Thread.sleep(Constants.SEND_INTERVAL);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+			else {
+				Log.e("SecureChat", "sendBuffer is Empty!");
+				throw new NullPointerException("sendBuffer is Empty!");
+			}
+		}
+    	
+    });
+    
 
     //Thread for onReceive method to process Packet sent from Bob and take on the JPake
     private Thread handlePackets = new Thread(new Runnable() {
@@ -318,7 +319,7 @@ public class JPakeActivity extends Activity {
 						 * step1Result.get(1) -
 						 */ 
 
-						jpake.step2((BigInteger)(jpake.step1Result.get(0)), (BigInteger)(received.get(0)), ((BigInteger)received.get(3)), (BigInteger)(jpake.step1Result.get(6)), jpake.GetPassWord(secret), signerId);
+						jpake.step2(new BigInteger((String)jpake.step1Result.get(0)), new BigInteger((String)received.get(0)), new BigInteger((String)received.get(3)), new BigInteger((String)jpake.step1Result.get(6)), jpake.GetPassWord(secret), signerId);
 
 					} catch (IllegalArgumentException e) {
 						// TODO Auto-generated catch block
@@ -359,7 +360,7 @@ public class JPakeActivity extends Activity {
 			}
 			sendBuffer.add(4, sessionKey);
 			if (!sendBuffer.isEmpty()) {
-				sendJpake(sendBuffer);
+				sendMessageThread.start();
 			}
 			else {
 				Log.e("SecureChat", "sendBuffer is Empty!");

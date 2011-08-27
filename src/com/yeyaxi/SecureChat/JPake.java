@@ -19,8 +19,8 @@ public class JPake extends Activity{
 	BigInteger p = new BigInteger(Constants.BigInteger_P, 16);
 	BigInteger q = new BigInteger(Constants.BigInteger_Q, 16);
 	BigInteger g = new BigInteger(Constants.BigInteger_G, 16);
-	ArrayList step1Result = new ArrayList();
-	ArrayList step2Result = new ArrayList();
+	ArrayList<String> step1Result = new ArrayList<String> ();
+	ArrayList<String> step2Result = new ArrayList<String> ();
 	
 	//Below this line are the implementation of JPake
 	public BigInteger GetPassWord(String pwd) throws IllegalArgumentException {
@@ -59,13 +59,13 @@ public class JPake extends Activity{
 		BigInteger[] sigX2 = generateZKP(p,q,g,gx2,x2, signerId);
 		
 		//return gx1, sigX1, gx2, sigX2
-		step1Result.add(0, gx1);
-		step1Result.add(1, sigX1[0]);
-		step1Result.add(2, sigX1[1]);
-		step1Result.add(3, gx2);
-		step1Result.add(4, sigX2[0]);
-		step1Result.add(5, sigX2[1]);
-		step1Result.add(6,x2);
+		step1Result.add(0, gx1.toString(16));
+		step1Result.add(1, sigX1[0].toString(16));
+		step1Result.add(2, sigX1[1].toString(16));
+		step1Result.add(3, gx2.toString(16));
+		step1Result.add(4, sigX2[0].toString(16));
+		step1Result.add(5, sigX2[1].toString(16));
+		step1Result.add(6,x2.toString(16));
 	}
 
 	public BigInteger[] generateZKP(BigInteger p, BigInteger q, BigInteger g,
@@ -130,10 +130,10 @@ public class JPake extends Activity{
 		BigInteger[] sigX2s = generateZKP(p, q, gA, A, x2.multiply(pwd).mod(q), signerId);
 		
 		//return gA, A, sigX2s
-		step2Result.add(0, gA);
-		step2Result.add(1, A);
-		step2Result.add(2, sigX2s[0]);
-		step2Result.add(3, sigX2s[1]);
+		step2Result.add(0, gA.toString(16));
+		step2Result.add(1, A.toString(16));
+		step2Result.add(2, sigX2s[0].toString(16));
+		step2Result.add(3, sigX2s[1].toString(16));
 	}
 
 	public String sessionKey(BigInteger gx4, BigInteger x2, BigInteger p, BigInteger q, BigInteger B, BigInteger pwd) throws NoSuchAlgorithmException {
